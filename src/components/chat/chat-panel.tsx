@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useEffect, useCallback, useState } from "react";
+import { useRef, useEffect, useCallback, useState, useMemo } from "react";
 import { useChat, type UIMessage } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import { useApiKey } from "@/hooks/use-api-key";
 import { useModel } from "@/hooks/use-model";
 import { useDiagram } from "@/contexts/diagram-context";
@@ -67,11 +68,12 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
     [chartXML, loadDiagram]
   );
 
+  // 创建 transport 实例（使用 useMemo 避免重复创建）
+  const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat" }), []);
+
   // 使用官方 useChat hook
-  // @ts-expect-error - api 参数在类型定义中可能缺失，但运行时是支持的
   const { messages, sendMessage, addToolResult, status, error, setMessages, stop } = useChat({
-    api: "/api/chat",
-    streamProtocol: "data", // 启用流式传输
+    transport,
     // 处理工具调用
     async onToolCall({ toolCall }) {
       console.log("[ChatPanel] 🔧 onToolCall triggered!");
