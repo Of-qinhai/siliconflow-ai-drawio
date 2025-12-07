@@ -72,7 +72,7 @@ AI 会精确修改，不影响其他部分
 ### AI 能力
 - **SiliconFlow** - 支持多种大模型
   - DeepSeek V3.2 - 推理能力强，适合复杂图表
-  - Qwen 系列 - 响应快，性价比高
+  - Kimi-K2-Thinking - 推理能力强，响应快
   - GLM-4.6 - 全能型模型
 
 ### 核心特性实现
@@ -184,6 +184,7 @@ SILICONFLOW_API_KEY=你的API_KEY
 - **快速生成** → Qwen 系列（响应快）
 - **平衡选择** → GLM-4.6（全能型）
 
+<video src="./public/20251207201314.mp4" controls width="600"></video>
 ## 未来规划
 
 - 支持更多图表类型（甘特图、时序图、ER 图）
@@ -203,7 +204,7 @@ SILICONFLOW_API_KEY=你的API_KEY
 
 ## 联系我
 
-- 微信公众号：[你的公众号名称]
+- 微信公众号：[码中悟道]
 - GitHub: [5372604@qq.com]
 - 邮箱: [5372604@qq.com]
 

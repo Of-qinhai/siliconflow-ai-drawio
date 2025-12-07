@@ -57,11 +57,11 @@ export function ApiKeyModal({ open, onOpenChange }: ApiKeyModalProps) {
       />
 
       {/* 弹窗内容 */}
-      <div className="relative bg-[var(--card)] rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 border border-[var(--border)]">
+      <div className="relative bg-card rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 border border-border">
         {/* 关闭按钮 */}
         <button
           onClick={() => onOpenChange(false)}
-          className="absolute top-4 right-4 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -72,8 +72,8 @@ export function ApiKeyModal({ open, onOpenChange }: ApiKeyModalProps) {
             <Key className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-[var(--foreground)]">设置 API Key</h2>
-            <p className="text-sm text-[var(--muted-foreground)]">
+            <h2 className="text-lg font-semibold text-foreground">设置 API Key</h2>
+            <p className="text-sm text-muted-foreground">
               配置 SiliconFlow AI 服务密钥
             </p>
           </div>
@@ -82,7 +82,7 @@ export function ApiKeyModal({ open, onOpenChange }: ApiKeyModalProps) {
         {/* 表单 */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-[var(--foreground)] flex items-center justify-between">
+            <label className="text-sm font-medium text-foreground flex items-center justify-between">
               <span>SiliconFlow API Key</span>
               {isKeySet && (
                 <span className="text-xs text-green-600 flex items-center gap-1">
@@ -98,8 +98,8 @@ export function ApiKeyModal({ open, onOpenChange }: ApiKeyModalProps) {
                 onChange={(e) => setValue(e.target.value)}
                 placeholder={isKeySet ? "已设置 (输入新 Key 以更换)" : "sk-xxxxxxxxxxxxxxxx"}
                 className={cn(
-                  "w-full px-4 py-3 pr-12 rounded-lg border bg-[var(--background)]",
-                  "text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]",
+                  "w-full px-4 py-3 pr-12 rounded-lg border border-border bg-background",
+                  "text-foreground placeholder:text-muted-foreground",
                   "focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500",
                   "transition-all duration-200"
                 )}
@@ -107,7 +107,7 @@ export function ApiKeyModal({ open, onOpenChange }: ApiKeyModalProps) {
               <button
                 type="button"
                 onClick={() => setShowKey(!showKey)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
                 {showKey ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -142,11 +142,10 @@ export function ApiKeyModal({ open, onOpenChange }: ApiKeyModalProps) {
         </form>
 
         {/* 提示信息 */}
-        <div className="mt-6 pt-4 border-t border-[var(--border)] space-y-2">
-          <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
-            🔗
+        <div className="mt-6 pt-4 border-t border-border space-y-2">
+          <p className="text-xs text-muted-foreground leading-relaxed">
             <a
-              href="https://cloud.siliconflow.cn/"
+              href="https://cloud.siliconflow.cn/i/ThYREh3H"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-500 hover:underline ml-1"
@@ -154,8 +153,8 @@ export function ApiKeyModal({ open, onOpenChange }: ApiKeyModalProps) {
               获取 SiliconFlow API Key →
             </a>
           </p>
-          <p className="text-xs text-[var(--muted-foreground)]">
-            🔒 API Key 加密存储在本地浏览器中，绝不上传到服务器。
+          <p className="text-xs text-muted-foreground">
+             API Key 加密存储在本地浏览器中，绝不上传到服务器。
           </p>
         </div>
       </div>

@@ -44,7 +44,7 @@ export default function Home() {
 
       {/* 聊天面板 */}
       <div
-        className={`${isChatVisible ? "w-[420px]" : "w-0 overflow-hidden"} h-full border-l border-[var(--border)] transition-all duration-300 ease-in-out`}
+        className={`${isChatVisible ? "w-[420px]" : "w-0 overflow-hidden"} h-full   transition-all duration-300 ease-in-out`}
       >
         <ChatPanel
           onOpenApiKeyModal={() => setShowApiKeyModal(true)}

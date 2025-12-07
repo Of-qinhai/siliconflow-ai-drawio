@@ -34,9 +34,9 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
         onClick={() => setOpen(!open)}
         className={cn(
           "flex items-center gap-2 px-3 py-2 rounded-lg",
-          "bg-[var(--secondary)] text-[var(--secondary-foreground)]",
-          "hover:bg-[var(--accent)] transition-colors",
-          "text-sm font-medium"
+          "bg-secondary text-secondary-foreground",
+          "hover:bg-accent transition-colors",
+          "text-sm font-medium border-0"
         )}
       >
         <Cpu className="w-4 h-4" />
@@ -48,12 +48,12 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
         <div
           className={cn(
             "absolute right-0 top-full mt-2 w-72 z-50",
-            "bg-[var(--popover)] border border-[var(--border)] rounded-xl shadow-lg",
+            "bg-card border border-border rounded-xl shadow-2xl",
             "py-2 animate-in fade-in-0 zoom-in-95"
           )}
         >
-          <div className="px-3 py-2 border-b border-[var(--border)]">
-            <p className="text-xs text-[var(--muted-foreground)]">选择 AI 模型</p>
+          <div className="px-3 py-2 border-b border-border">
+            <p className="text-xs text-muted-foreground">选择 AI 模型</p>
           </div>
 
           <div className="py-1">
@@ -65,7 +65,7 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
                   setOpen(false);
                 }}
                 className={cn(
-                  "w-full px-3 py-2 text-left hover:bg-[var(--accent)] transition-colors",
+                  "w-full px-3 py-2 text-left hover:bg-accent transition-colors",
                   "flex items-start gap-3"
                 )}
               >
@@ -74,14 +74,14 @@ export function ModelSelector({ value, onChange }: ModelSelectorProps) {
                     "w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5",
                     value === model.id
                       ? "border-blue-500 bg-blue-500"
-                      : "border-[var(--border)]"
+                      : "border-border"
                   )}
                 >
                   {value === model.id && <Check className="w-3 h-3 text-white" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--foreground)]">{model.name}</p>
-                  <p className="text-xs text-[var(--muted-foreground)] truncate">
+                  <p className="text-sm font-medium text-foreground">{model.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">
                     {model.description}
                   </p>
                 </div>
