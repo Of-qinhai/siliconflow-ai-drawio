@@ -57,12 +57,20 @@ export function DiagramCanvas() {
   const [enhancedImageUrl, setEnhancedImageUrl] = useState<string | null>(null);
 
   // 导出图表
-  const handleExportClick = () => {
-    if (drawioRef.current) {
-      drawioRef.current.exportDiagram({
-        format: "png",
-        border: "20" // 添加20像素的边距
-      });
+  const handleExportClick = async () => {
+    try {
+      // 使用 exportDiagramAsImage 获取图片数据
+      const imageData = await exportDiagramAsImage();
+
+      // 创建下载链接
+      const a = document.createElement('a');
+      a.href = imageData;
+      a.download = `diagram-${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Export failed:", error);
     }
   };
 
@@ -261,7 +269,7 @@ export function DiagramCanvas() {
         </button>
 
         <button
-          onClick={handleExportClick}
+         onClick={()=>handleExportClick()}
           className={cn(
             "p-2 rounded-lg bg-white/90 backdrop-blur shadow-md",
             "hover:bg-white transition-colors",
@@ -269,7 +277,7 @@ export function DiagramCanvas() {
           )}
           title="导出图片"
         >
-          <Download className="w-5 h-5" />
+          <Download className="w-5 h-5"   />
         </button>
 
         <button
