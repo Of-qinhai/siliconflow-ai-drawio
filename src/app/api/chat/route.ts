@@ -203,8 +203,23 @@ export async function POST(req: Request) {
         },
       },
       temperature: 0.35, // 提升创造性，从 0.1 提升到 0.35
+      onStepFinish: ({ text, toolCalls, toolResults, finishReason }) => {
+        console.log("[Chat API] ⚡ Step finished");
+        console.log("[Chat API] Step text length:", text?.length || 0);
+        console.log("[Chat API] Step tool calls count:", toolCalls?.length || 0);
+        if (toolCalls && toolCalls.length > 0) {
+          console.log("[Chat API] 🔧 Step tool calls:", JSON.stringify(toolCalls.map(tc => ({
+            type: tc.type,
+            toolName: tc.toolName,
+            toolCallId: tc.toolCallId,
+            argsLength: tc.args ? JSON.stringify(tc.args).length : 0
+          })), null, 2));
+        }
+        console.log("[Chat API] Step tool results count:", toolResults?.length || 0);
+        console.log("[Chat API] Step finish reason:", finishReason);
+      },
       onFinish: ({ text, toolCalls, usage }) => {
-        console.log("[Chat API] Stream finished");
+        console.log("[Chat API] 🏁 Stream finished");
         console.log("[Chat API] Model:", modelId);
         console.log("[Chat API] Text length:", text?.length || 0);
         console.log("[Chat API] Tool calls:", toolCalls?.length || 0);

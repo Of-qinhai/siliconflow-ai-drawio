@@ -29,39 +29,28 @@ export const RECOMMENDED_MODELS = [
   {
     id: "Pro/deepseek-ai/DeepSeek-V3.2",
     name: "DeepSeek V3.2",
-    description: "高效，推理能力强",
+    description: "不支持逐过程输出绘制，耐心等待，推理能力强，生成效果非常好",
   },
   {
     id: "Pro/deepseek-ai/DeepSeek-V3",
     name: "DeepSeek V3",
-    description: "推理能力强，适合复杂图表生成",
+    description: "推理能力强，逐过程输出绘制，适合复杂图表生成",
   },
   {
     id: "Pro/deepseek-ai/DeepSeek-R1",
     name: "DeepSeek R1",
-    description: "性价比高，响应较快",
-  },
-  {
-    id: "Pro/deepseek-ai/DeepSeek-V3.2-Exp",
-    name: "DeepSeek V3.2 Exp",
-    description: "推理能力强，适合复杂图表生成",
+    description: "耐心等待，推理能力强，支持逐过程渲染",
   },
   {
     id: "zai-org/GLM-4.6",
     name: "GLM-4.6 335B",
-    description: "推理能力强，适合复杂图表生成",
+    description: "耐心等待，逐过程渲染，适合复杂图表生成",
   },
   {
     id: "Pro/moonshotai/Kimi-K2-Thinking",
     name: "Kimi-K2-Thinking",
-    description: "推理能力强，适合复杂图表生成",
-  },
-  {
-    id: "Qwen/Qwen3-VL-235B-A22B-Thinking",
-    name: "Qwen3-VL-235B-A22B-Thinking",
-    description: "推理能力强，适合复杂图表生成",
-  },
-
+    description: "耐心等待，逐过程渲染，适合复杂图表生成",
+  }
 ] as const;
 
 export type ModelId = (typeof RECOMMENDED_MODELS)[number]["id"];

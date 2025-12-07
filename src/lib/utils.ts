@@ -102,7 +102,7 @@ export function autoFitCanvas(xml: string): string {
 /**
  * 将不完整的 XML 字符串转换为合法的 XML
  * 智能提取完整的标签，保留 mxCell 和其他重要元素
- * 增强版：更好地处理嵌套和不完整的 XML
+ * 增强版：更好地处理嵌套和不完整的 XML，并转义特殊字符
  */
 export function convertToLegalXml(xmlString: string): string {
   if (!xmlString || xmlString.trim() === '') {
@@ -110,9 +110,23 @@ export function convertToLegalXml(xmlString: string): string {
   }
 
   try {
+    // 预处理：转义属性值中的特殊字符
+    // 匹配所有属性值（在引号内的内容）
+    let cleanedXml = xmlString.replace(/(\w+)="([^"]*)"/g, (match, attrName, attrValue) => {
+      // 转义属性值中的特殊字符
+      const escapedValue = attrValue
+        .replace(/&(?!amp;|lt;|gt;|quot;|apos;)/g, '&amp;')  // & -> &amp; (避免重复转义)
+        .replace(/</g, '&lt;')   // < -> &lt;
+        .replace(/>/g, '&gt;')   // > -> &gt;
+        .replace(/"/g, '&quot;') // " -> &quot;
+        .replace(/'/g, '&apos;'); // ' -> &apos;
+
+      return `${attrName}="${escapedValue}"`;
+    });
+
     // 如果已经包含完整的 <root> 标签，尝试验证并返回
-    if (xmlString.includes('<root>') && xmlString.includes('</root>')) {
-      const rootMatch = xmlString.match(/<root>([\s\S]*?)<\/root>/);
+    if (cleanedXml.includes('<root>') && cleanedXml.includes('</root>')) {
+      const rootMatch = cleanedXml.match(/<root>([\s\S]*?)<\/root>/);
       if (rootMatch) {
         // 验证是否可解析
         try {
@@ -133,7 +147,7 @@ export function convertToLegalXml(xmlString: string): string {
     const cells: string[] = [];
     let match: RegExpExecArray | null;
 
-    while ((match = mxCellRegex.exec(xmlString)) !== null) {
+    while ((match = mxCellRegex.exec(cleanedXml)) !== null) {
       cells.push(match[0]);
     }
 

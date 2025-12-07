@@ -135,13 +135,13 @@ AI 会精确修改你指定的部分
 
 项目完全开源，欢迎 Star 和贡献！
 
-GitHub: [你的仓库地址]
+GitHub: [仓库地址](https://github.com/Of-qinhai/siliconflow-ai-drawio.git)
 
 ### 本地运行
 
 ```bash
 # 克隆项目
-git clone [你的仓库地址]
+git clone https://github.com/Of-qinhai/siliconflow-ai-drawio.git
 
 # 安装依赖
 cd e-ppt

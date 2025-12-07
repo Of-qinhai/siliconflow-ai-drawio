@@ -46,9 +46,11 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
   const handleDisplayChart = useCallback(
     (xml: string) => {
       const currentXml = xml || "";
+      console.log("[ChatPanel] handleDisplayChart - XML length:", currentXml.length);
+
       // 将不完整的 XML 转换为合法的 XML（只保留完整的 mxCell 标签）
       const convertedXml = convertToLegalXml(currentXml);
-      
+
       // 只有当转换后的 XML 与上一次不同时才更新
       if (convertedXml !== previousXMLRef.current) {
         previousXMLRef.current = convertedXml;
@@ -67,14 +69,20 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
 
   // 使用官方 useChat hook
   // @ts-expect-error - api 参数在类型定义中可能缺失，但运行时是支持的
-  const { messages, sendMessage, addToolResult, status, error, setMessages } = useChat({
+  const { messages, sendMessage, addToolResult, status, error, setMessages, stop } = useChat({
     api: "/api/chat",
     streamProtocol: "data", // 启用流式传输
     // 处理工具调用
     async onToolCall({ toolCall }) {
-      console.log("[ChatPanel] Tool call:", toolCall.toolName, toolCall.input);
+      console.log("[ChatPanel] 🔧 onToolCall triggered!");
+      console.log("[ChatPanel] Tool name:", toolCall.toolName);
+      console.log("[ChatPanel] Tool call ID:", toolCall.toolCallId);
+      console.log("[ChatPanel] Tool input keys:", Object.keys(toolCall.input || {}));
+      console.log("[ChatPanel] Tool input:", toolCall.input);
 
       if (toolCall.toolName === "display_diagram") {
+        console.log("[ChatPanel] ✅ display_diagram tool called");
+        console.log("[ChatPanel] XML length:", (toolCall.input as any)?.xml?.length || 0);
         // 图表通过流式显示处理，这里只需返回成功
         addToolResult({
           tool: "display_diagram",
@@ -82,9 +90,11 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
           output: "Successfully displayed the diagram.",
         });
       } else if (toolCall.toolName === "edit_diagram") {
+        console.log("[ChatPanel] ✏️ edit_diagram tool called");
         const { edits } = toolCall.input as {
           edits: Array<{ search: string; replace: string }>;
         };
+        console.log("[ChatPanel] Edits count:", edits?.length || 0);
 
         try {
           applyEdits(edits);
@@ -94,17 +104,19 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
             output: `Successfully applied ${edits.length} edit(s) to the diagram.`,
           });
         } catch (error) {
-          console.error("Edit diagram failed:", error);
+          console.error("[ChatPanel] Edit diagram failed:", error);
           addToolResult({
             tool: "edit_diagram",
             toolCallId: toolCall.toolCallId,
             output: `Edit failed: ${error instanceof Error ? error.message : String(error)}`,
           });
         }
+      } else {
+        console.warn("[ChatPanel] ⚠️ Unknown tool:", toolCall.toolName);
       }
     },
     onError: (error) => {
-      console.error("[ChatPanel] Chat error:", error);
+      console.error("[ChatPanel] ❌ Chat error:", error);
     },
   });
 
@@ -120,15 +132,23 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
   useEffect(() => {
     if (messages.length === 0) return;
 
+    console.log("[ChatPanel] 📨 Messages updated, count:", messages.length);
+
     // 只处理最后一条消息
     const latestMessage = messages[messages.length - 1];
-    if (!latestMessage.parts) return;
+    if (!latestMessage.parts) {
+      console.log("[ChatPanel] Latest message has no parts");
+      return;
+    }
 
-    latestMessage.parts.forEach((part: any) => {
+    console.log("[ChatPanel] Latest message role:", latestMessage.role);
+    console.log("[ChatPanel] Latest message parts count:", latestMessage.parts.length);
+
+    latestMessage.parts.forEach((part: any, index: number) => {
       if (part.type?.startsWith("tool-")) {
         const { toolCallId, state } = part;
 
-        console.log("[ChatPanel] Tool part detected:", {
+        console.log(`[ChatPanel] 🔍 Part ${index} - Tool part detected:`, {
           type: part.type,
           state,
           toolCallId,
@@ -138,20 +158,33 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
 
         // 处理 display_diagram 工具调用
         if (part.type === "tool-display_diagram" && part.input?.xml) {
-          console.log("[ChatPanel] Display diagram - state:", state, "XML length:", part.input.xml.length);
+          console.log("[ChatPanel] 🎨 Display diagram - state:", state, "XML length:", part.input.xml.length);
+
+          // 清理 XML：移除 CDATA 标签
+          let cleanXml = part.input.xml;
+          if (cleanXml.includes("<![CDATA[")) {
+            cleanXml = cleanXml.replace(/<!\[CDATA\[/g, "").replace(/\]\]>/g, "");
+            console.log("[ChatPanel] 🧹 Cleaned CDATA from XML");
+          }
 
           // 流式输入时持续更新（这是实时显示的关键！）
           if (state === "input-streaming" || state === "input-available") {
             console.log("[ChatPanel] 🔄 Streaming update!");
-            handleDisplayChart(part.input.xml);
+            handleDisplayChart(cleanXml);
           }
           // 完成时只处理一次
           else if (state === "output-available" && !processedToolCalls.current.has(toolCallId)) {
             console.log("[ChatPanel] ✅ Final update!");
-            handleDisplayChart(part.input.xml);
+            handleDisplayChart(cleanXml);
             processedToolCalls.current.add(toolCallId);
+          } else if (state === "output-available" && processedToolCalls.current.has(toolCallId)) {
+            console.log("[ChatPanel] ⏭️ Skipping duplicate tool call:", toolCallId);
+          } else {
+            console.log("[ChatPanel] ❓ Unknown state:", state);
           }
         }
+      } else if (part.type) {
+        console.log(`[ChatPanel] Part ${index} type:`, part.type);
       }
     });
   }, [messages, handleDisplayChart]);
@@ -317,18 +350,40 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
                 "disabled:opacity-50"
               )}
             />
-            <button
-              type="submit"
-              disabled={!inputValue.trim() || isProcessing}
-              className={cn(
-                "p-3 rounded-lg transition-all duration-200",
-                "bg-gradient-to-r from-blue-500 to-purple-600 text-white",
-                "hover:opacity-90 active:scale-95",
-                "disabled:opacity-50 disabled:cursor-not-allowed"
-              )}
-            >
-              {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-            </button>
+            {isProcessing ? (
+              <button
+                type="button"
+                onClick={() => stop()}
+                className={cn(
+                  "p-3 rounded-lg transition-all duration-200",
+                  "bg-red-500 text-white",
+                  "hover:bg-red-600 active:scale-95"
+                )}
+                title="停止生成"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <rect x="6" y="6" width="12" height="12" strokeWidth="2" />
+                </svg>
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={!inputValue.trim()}
+                className={cn(
+                  "p-3 rounded-lg transition-all duration-200",
+                  "bg-gradient-to-r from-blue-500 to-purple-600 text-white",
+                  "hover:opacity-90 active:scale-95",
+                  "disabled:opacity-50 disabled:cursor-not-allowed"
+                )}
+              >
+                <Send className="w-5 h-5" />
+              </button>
+            )}
           </form>
         )}
       </div>
