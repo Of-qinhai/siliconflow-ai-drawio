@@ -144,7 +144,7 @@ GitHub: [仓库地址](https://github.com/Of-qinhai/siliconflow-ai-drawio.git)
 git clone https://github.com/Of-qinhai/siliconflow-ai-drawio.git
 
 # 安装依赖
-cd e-ppt
+cd siliconflow-ai-drawio
 npm install
 
 # 启动开发服务器
@@ -153,6 +153,11 @@ npm run dev
 
 访问 `http://localhost:4000` 即可使用
 
+
+``` bash
+# 一键部署
+./deploy.sh
+```
 ### 环境变量配置（可选）
 
 如果你想为所有用户提供统一的 API Key，可以配置环境变量：
