@@ -1,0 +1,3598 @@
+openapi: 3.0.0
+info:
+  title: SiliconFlow API
+  description: The SiliconFlow REST API
+  version: "1.0.0"
+  contact:
+    name: SiliconFlow Support
+    url: https://www.siliconflow.cn/
+  license:
+    name: MIT
+    url: https://github.com/siliconflow/siliconcloud/blob/main/LICENSE
+servers:
+  - url: https://api.siliconflow.cn/v1
+security:
+  - bearerAuth: []
+
+
+paths:
+  /user/info:
+    get:
+      summary: Get user information
+      operationId: user-info
+      description: Get user information including balance and status
+      tags:
+        - UserInfo
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 20000
+                  message:
+                    type: string
+                    example: OK
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "userid"
+                      name:
+                        type: string
+                        example: "username"
+                        description: This field will no longer be returned after June 11th, and a fixed empty string will be output instead.
+                      image:
+                        type: string
+                        example: "user_avatar_image_url"
+                        description: This field will no longer be returned after June 11th, and a fixed empty string will be output instead.
+                      email:
+                        type: string
+                        example: "user_email_address"
+                        description: This field will no longer be returned after June 11th, and a fixed empty string will be output instead.
+                      isAdmin:
+                        type: boolean
+                        example: false
+                      balance:
+                        type: string
+                        example: "0.88"
+                      status:
+                        type: string
+                        example: "normal"
+                      introduction:
+                        type: string
+                        example: ""
+                      role:
+                        type: string
+                        example: ""
+                      chargeBalance:
+                        type: string
+                        example: "88.00"
+                      totalBalance:
+                        type: string
+                        example: "88.88"
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '429':
+          description: 'RateLimit'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+      deprecated: false
+
+  /models:
+    get:
+      summary: Get Model List
+      operationId: Retrieve a list of models.
+      description: Retrieve models information.
+      parameters:
+        - name: type
+          in: query
+          description: The type of models
+          required: false
+          schema:
+            type: string
+            enum: [ text, image, audio, video ]
+        - name: sub_type
+          in: query
+          description: The sub type of models. You can use it to filter models individually without setting type.
+          required: false
+          schema:
+            type: string
+            enum: [ chat, embedding, reranker, text-to-image, image-to-image,  speech-to-text, text-to-video ]
+      tags:
+        - Models
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    example: list
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: stabilityai/stable-diffusion-xl-base-1.0
+                        object:
+                          type: string
+                          example: model
+                        created:
+                          type: integer
+                          example: 0
+                        owned_by:
+                          type: string
+                          example: ""
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '429':
+          description: 'RateLimit'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+      deprecated: false
+
+  /files:
+    post:
+      summary: Upload Files
+      description: Upload files
+      operationId: UploadFiles
+      parameters: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                purpose:
+                  type: string
+                  example: "batch"
+                  enum: [
+                    "batch"
+                  ]
+                file:
+                    title: File upload
+                    type: string
+                    format: binary
+                    example: /path/to/abc.jsonl
+                    description: "File to upload"
+              required:
+                  - purpose
+                  - file
+ 
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 20000
+                  message:
+                    type: string
+                    example: Ok
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: file-jkvytbjtow
+                      object:
+                        type: string
+                        example: file
+                      bytes:
+                        type: integer
+                        example: 8509
+                      createdAt:
+                        type: integer
+                        example: 1741685396
+                      filename:
+                        type: string
+                        example: requests.jsonl
+                      purpose:
+                        type: string
+                        example: batch
+
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/BadRquestData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeoutData"
+      deprecated: false
+
+    get:
+      summary: Returns a list of files.
+      description: Returns a list of files.
+      operationId: getFiles
+      parameters:
+        - name: purpose
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [batch]  # 假设用途类型为枚举值
+          description: Filter files by their purpose
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+          description: Maximum number of files to return (default 10)
+      responses:
+        '200':
+          description: Successful response with file list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 20000
+                  message:
+                    type: string
+                    example: "Ok"
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              example: "file-kkhtqklcnm"
+                            object:
+                              type: string
+                              example: "file"
+                            bytes:
+                              type: integer
+                              example: 806
+                            created_at:
+                              type: integer
+                              example: 1741777570
+                            filename:
+                              type: string
+                              example: "requests-2.jsonl"
+                            purpose:
+                              type: string
+                              example: "batch"
+                            line_count:
+                              type: integer
+                              example: 2
+                      object:
+                        type: string
+                        example: "file"
+                required:
+                  - code
+                  - message
+                  - status
+                  - data
+
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/BadRquestData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeoutData"
+      deprecated: false
+
+  /batches:
+    post:
+      summary: Upload Files
+      description: Upload files
+      operationId: UploadFiles
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                input_file_id:
+                  type: string
+                  example: file-jkvytbjtow
+                  description: The ID of an uploaded file that contains requests for the new batch.
+                endpoint:
+                  type: string
+                  example: /v1/chat/completions
+                  description: The endpoint to be used for all requests in the batch. Currently /v1/chat/completions is supported. 
+                completion_window:
+                  type: string
+                  example: 24h
+                  description: The time frame within which the batch should be processed. The maximum value is 24 hours, and  the minimum value is 336 hours.
+                metadata:
+                  type: object
+                  description: Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format, and querying for objects via API or the dashboard.<\br>Keys are strings with a maximum length of 64 characters. Values are strings with a maximum length of 512 characters.
+                  properties:
+                    description: 
+                      type: string
+                      example: nightly eval job
+                replace:
+                  type: object
+                  properties:
+                    model:
+                      type: string
+                      example: deepseek-ai/DeepSeek-V3
+                      enum: 
+                      - deepseek-ai/DeepSeek-V3
+                      - deepseek-ai/DeepSeek-R1
+                      - Qwen/QwQ-32B
+              required:
+                - input_file_id
+                - completion_window
+                - endpoint
+
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: batch_rdyqgrcgjg
+                  object:
+                    type: string
+                    example: batch
+                  endpoint:
+                    type: string
+                    example: /v1/chat/completions
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: null
+                  input_file_id:
+                    type: string
+                    example: file-jkvytbjtow
+                  completion_window:
+                    type: string
+                    example: 24h
+                  status:
+                    type: string
+                    example: in_queue
+                  output_file_id:
+                    type: string
+                    example: null
+                  error_file_id:
+                    type: string
+                    example: null
+                  created_at:
+                    type: integer
+                    example: 1741685413
+                  in_progress_at:
+                    type: integer
+                    example: null
+                  expires_at:
+                    type: integer
+                    example: 1741771813
+                  finalizing_at:
+                    type: integer
+                    example: null
+                  completed_at:
+                    type: integer
+                    example: null
+                  failed_at:
+                    type: integer
+                    example: null
+                  expired_at:
+                    type: integer
+                    example: null
+                  cancelling_at:
+                    type: integer
+                    example: null
+                  cancelled_at:
+                    type: integer
+                    example: null
+                  request_counts:
+                    type: object
+                    example: null
+                  metadata:
+                    type: object
+                    properties:
+                      description:
+                        type: string
+                        example: nightly eval job
+
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/BadRquestData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeoutData"
+      deprecated: false
+    get:
+      summary: List your organization's batches.
+      operationId: getBatchEvaluationJob
+      description: List your organization's batches.
+
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    example: "list"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "batch_id"
+                        object:
+                          type: string
+                          example: "batch"
+                        endpoint:
+                          type: string
+                          example: "/v1/chat/completions"
+                        errors:
+                          type: array
+                          nullable: true
+                          items:
+                            type: string
+                          example: null
+                        input_file_id:
+                          type: string
+                          example: "file-id"
+                        completion_window:
+                          type: string
+                          example: "24h"
+                        status:
+                          type: string
+                          example: "in_queue"
+                        output_file_id:
+                          type: string
+                          nullable: true
+                          example: null
+                        error_file_id:
+                          type: string
+                          nullable: true
+                          example: null
+                        created_at:
+                          type: integer
+                          example: 1749023566
+                        in_progress_at:
+                          type: integer
+                          nullable: true
+                          example: null
+                        expires_at:
+                          type: integer
+                          example: 1749109966
+                        finalizing_at:
+                          type: integer
+                          nullable: true
+                          example: null
+                        completed_at:
+                          type: integer
+                          nullable: true
+                          example: null
+                        failed_at:
+                          type: integer
+                          nullable: true
+                          example: null
+                        expired_at:
+                          type: integer
+                          nullable: true
+                          example: null
+                        cancelling_at:
+                          type: integer
+                          nullable: true
+                          example: null
+                        cancelled_at:
+                          type: integer
+                          nullable: true
+                          example: null
+                        request_counts:
+                          type: object
+                          nullable: true
+                          example: null
+                        metadata:
+                          type: object
+                          properties:
+                            batch_description:
+                              type: string
+                              example: ""
+                            name:
+                              type: string
+                              example: "batch"
+                        file_name:
+                          type: string
+                          example: "requests_name.json"
+                  first_id:
+                    type: string
+                    example: "first_batch_id"
+                  last_id:
+                    type: string
+                    example: "last_batch_id"
+                  has_more:
+                    type: boolean
+                    example: false
+
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+      deprecated: false
+
+
+  /batches/{batch_id}:
+    get:
+      summary: Retrieves a batch.
+      operationId: getBatchEvaluationJob
+      description: Retrieves a batch.
+      parameters:
+        - name: batch_id
+          in: path
+          description: The ID of the batch to retrieve.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The Batch object matching the specified ID.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: batch_rdyqgrcgjg
+                  object:
+                    type: string
+                    example: batch
+                  endpoint:
+                    type: string
+                    example: /v1/chat/completions
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+                  input_file_id:
+                    type: string
+                    example: file-jkvytbjtow
+                  completion_window:
+                    type: string
+                    example: 24h
+                  status:
+                    type: string
+                    example: in_queue
+                  output_file_id:
+                    type: string
+                    example: null
+                  error_file_id:
+                    type: string
+                    example: null
+                  created_at:
+                    type: integer
+                    example: 1741685413
+                  in_progress_at:
+                    type: integer
+                    example: null
+                  expires_at:
+                    type: integer
+                    example: 1741771813
+                  finalizing_at:
+                    type: integer
+                    example: null
+                  completed_at:
+                    type: integer
+                    example: null
+                  failed_at:
+                    type: integer
+                    example: null
+                  expired_at:
+                    type: integer
+                    example: null
+                  cancelling_at:
+                    type: integer
+                    example: null
+                  cancelled_at:
+                    type: integer
+                    example: null
+                  request_counts:
+                    type: object
+                    example: {}
+                  metadata:
+                    type: object
+                    properties:
+                      description:
+                        type: string
+                        example: nightly eval job
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+      deprecated: false
+
+
+  /batches/{batch_id}/cancel:
+    post:
+      summary: Cancel a specific batch
+      description: This endpoint cancels a batch identified by its unique ID.
+      operationId: cancelBatch
+      parameters:
+        - name: batchId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier of the batch to cancel
+
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: batch_rdyqgrcgjg
+                  object:
+                    type: string
+                    example: batch
+                  endpoint:
+                    type: string
+                    example: /v1/chat/completions
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: null
+                  input_file_id:
+                    type: string
+                    example: file-jkvytbjtow
+                  completion_window:
+                    type: string
+                    example: 24h
+                  status:
+                    type: string
+                    example: in_queue
+                  output_file_id:
+                    type: string
+                    example: null
+                  error_file_id:
+                    type: string
+                    example: null
+                  created_at:
+                    type: integer
+                    example: 1741685413
+                  in_progress_at:
+                    type: integer
+                    example: null
+                  expires_at:
+                    type: integer
+                    example: 1741771813
+                  finalizing_at:
+                    type: integer
+                    example: null
+                  completed_at:
+                    type: integer
+                    example: null
+                  failed_at:
+                    type: integer
+                    example: null
+                  expired_at:
+                    type: integer
+                    example: null
+                  cancelling_at:
+                    type: integer
+                    example: null
+                  cancelled_at:
+                    type: integer
+                    example: null
+                  request_counts:
+                    type: object
+                    example: null
+                  metadata:
+                    type: object
+                    properties:
+                      description:
+                        type: string
+                        example: nightly eval job
+
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/BadRquestData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeoutData"
+      deprecated: false
+
+
+  /uploads/audio/voice:
+    post:
+      summary: Upload Voice
+      description: Upload user-provided voice style, which can be in base64 encoding or file format. Refer to (https://docs.siliconflow.cn/capabilities/text-to-speech#2-2)
+      operationId: uploadAudioVoice
+      parameters: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                model:
+                  type: string
+                  example: "FunAudioLLM/CosyVoice2-0.5B"
+                  enum: [
+                    "FunAudioLLM/CosyVoice2-0.5B"
+                  ]
+                  description: "Predefined voice style model name"
+                customName:
+                  type: string
+                  example: "your-voice-name"
+                  description: "User-defined voice style name"
+                  default: "Silicon flow voice style model"
+                text:
+                  type: string
+                  example: "在一无所知中, 梦里的一天结束了，一个新的轮回便会开始"
+                  description: "Corresponding text content for the audio"
+                  default: "在一无所知中, 梦里的一天结束了，一个新的轮回便会开始"
+              required:
+                - model
+                - customName
+                - text
+              oneOf:
+                - properties:
+                    audio:
+                      title: Base64 encoding of audio
+                      type: string
+                      example: "data:audio/mpeg;base64,aGVsbG93b3JsZA=="
+                      description: "Audio file encoded in base64 with the header format of `data:audio/mpeg;base64`"
+                - properties:
+                    file:
+                      title: File upload for audio
+                      type: string
+                      format: binary
+                      example: /path/to/audio.mp3
+                      description: "File to upload"
+         
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uri:
+                    type: string
+                    example: 'speech:your-voice-name:xxx:xxx'
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/BadRquestData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundData"
+        '429':
+          description: 'RateLimit'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OverloadedtData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeoutData"
+      deprecated: false
+
+
+  /chat/completions:
+    post:
+      summary: Chat Completions
+      operationId: chat-completions
+      description: Creates a model response for the given chat conversation.
+      tags:
+        - Chat Completions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/ChatCompletionRequest"
+                - $ref: "#/components/schemas/ChatCompletionVLMRequest"
+                
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatCompletionResponse"
+            text/event-stream:
+              schema:
+                $ref: "#/components/schemas/ChatCompletionStream"
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRquestData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundData"
+        '429':
+          description: 'RateLimit'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OverloadedtData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeoutData"
+      deprecated: false
+
+  /embeddings:
+    post:
+      summary: Create Embeddings
+      description: Creates an embedding vector representing the input text.
+      operationId: createEmbedding
+      tags:
+        - Embeddings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmbeddingsRequest'
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmbeddingsResponse'
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRquestData'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedData'
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundData'
+        '429':
+          description: 'RateLimit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitData'
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverloadedtData'
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeoutData'
+      deprecated: false
+
+  /audio/speech:
+    post:
+      operationId: createSpeech
+      tags:
+          - Audio
+      summary: Create Speech
+      description: Generate audio from input text. The data generated by the interface is the binary data of the audio, which requires the user to handle it themselves. Reference:https://docs.siliconflow.cn/capabilities/text-to-speech#5 
+      requestBody:
+          required: true
+          content:
+              application/json:
+                  schema:
+                    oneOf:  
+                      - $ref: "#/components/schemas/CosyVoice2-0.5B"
+      responses:
+          "200":
+              description: Generate audio based on the input text. The data generated by the interface is in binary format and requires the user to process it themselves. Reference:https://docs.siliconflow.cn/capabilities/text-to-speech#5
+              headers:
+                  Transfer-Encoding:
+                      schema:
+                          type: string
+                      description: chunked
+              content:
+                  application/audio:
+                      schema:
+                          type: string
+                          format: binary
+                          example: 音频的二进制数据
+                  audio/wav:
+                      schema:
+                          type: string
+                          format: binary
+                          example: 音频的二进制数据
+                  audio/opus:
+                      schema:
+                          type: string
+                          format: binary
+                          example: 音频的二进制数据
+          '400':
+            description: 'BadRequest'
+            content:
+              application/json:
+                schema:
+                  type: object
+                  $ref: "#/components/schemas/BadRquestData"
+          '401':
+            description: 'Unauthorized'
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/UnauthorizedData"
+          '404':
+            description: 'NotFound'
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/NotFoundData"
+          '429':
+            description: 'RateLimit'
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/RateLimitData"
+          '503':
+            description: 'Overloaded'
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/OverloadedtData"
+          '504':
+            description: 'Timeout'
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/TimeoutData"
+
+  /audio/voice/list:
+    get:
+      summary: Get Voice List
+      description: Get list of user-defined voice styles
+      operationId: audioVoiceList
+      tags:
+        - Audio
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                description: "User-defined voice style list response"
+                properties:
+                  results:
+                    type: array
+                    description: "Predefined voice style list"
+                    items:
+                      type: object
+                      properties:
+                        model:
+                          type: string
+                          example: "fishaudio/fish-speech-1.4"
+                          description: "Predefined voice style model name"
+                        customName:
+                          type: string
+                          example: "your-voice-name"
+                          description: "User-defined voice style name"
+                        text:
+                          type: string
+                          example: "在一无所知中, 梦里的一天结束了，一个新的轮回便会开始"
+                          description: "Corresponding text content for the audio"
+                        uri:
+                          type: string
+                          example: "speech:your-voice-name:xxx:xxx"
+                          description: "URI generated after uploading the audio"
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/BadRquestData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundData"
+        '429':
+          description: 'RateLimit'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OverloadedtData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeoutData"                          
+
+
+  /audio/voice/deletions:
+    post:
+      tags:
+        - Audio
+      summary: Delete User Voice
+      description: Delete user-defined voice style
+      operationId: AudioVoiceDeletions
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uri:
+                  type: string
+                  example: "speech:your-voice-name:xxx:xxxx"
+                  description: "Voice style to be deleted by the user"
+              required:
+                - uri
+
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/BadRquestData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundData"
+        '429':
+          description: 'RateLimit'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OverloadedtData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeoutData"
+      deprecated: false  
+      
+  /audio/transcriptions:
+    post:
+      summary: Create Audio Transcriptions
+      description: Creates an audio transcription.
+      operationId: createAudioTranscriptions
+      tags:
+        - Audio
+      requestBody:
+        content:
+          #multipart/form-data; boundary=<calculated when request is sent>:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AudioRequest'
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AudioResponse'
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringData'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringData'
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringData'
+        '429':
+          description: 'RateLimit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringData'
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringData'
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringData'
+      deprecated: false
+
+  /rerank:
+    post:
+      summary: Create Rerank
+      description: Creates a rerank request.
+      operationId: createRerank
+      tags:
+        - Rerank
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RerankRequest'
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RerankResponse'
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRquestData'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedData'
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundData'
+        '429':
+          description: 'RateLimit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitData'
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverloadedtData'
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeoutData'
+      deprecated: false
+
+  /images/generations:
+    post:
+      summary: Image Generation
+      operationId: ImageGeneration
+      description: Creates an image response for the given prompt. The URL for the generated image is valid for one hour. Please make sure to download and store it promptly to avoid any issues due to URL expiration.
+      tags:
+        - Image
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/Kolors"
+
+                
+
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImagesGenerationResponse"
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRquestData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundData"
+        '429':
+          description: 'RateLimit'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OverloadedtData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeoutData"
+      deprecated: false
+
+  /video/submit:
+    post:
+      summary: Submit video
+      description: Generate a video through the input prompt. This API returns the user's current request ID. The user needs to poll the status interface to get the specific video link. The generated result is valid for 10 minutes, so please retrieve the video link promptly.
+      tags:
+        - Video
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/I2V" 
+                - $ref: "#/components/schemas/tencent_HunyuanVideo"
+                
+                
+
+
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  requestId:
+                    type: string
+                    description: The requestId generated by this request needs to be used when calling the status interface.
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/BadRquestData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundData"
+        '429':
+          description: 'RateLimit'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OverloadedtData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeoutData"
+ 
+
+
+  /video/status:
+    post:
+      summary: get video
+      description: Get the user-generated video. The URL for the generated video is valid for one hour. Please make sure to download and store it promptly to avoid any issues due to URL expiration.
+      tags:
+        - video
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/getVideosRequest"
+
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/getVideosResponse"
+        '400':
+          description: 'BadRequest'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRquestData"
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedData"
+        '404':
+          description: 'NotFound'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundData"
+        '503':
+          description: 'Overloaded'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OverloadedtData"
+        '504':
+          description: 'Timeout'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeoutData"
+      deprecated: false
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer 
+      bearerFormat: "your api key"
+      description: "Use the following format for authentication: Bearer [<your api key>](https://cloud.siliconflow.cn/account/ak)"
+
+
+  schemas:
+    EmbeddingsRequest:
+      type: object
+      required:
+        - model
+        - input
+      properties:
+        model:
+          type: string
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+          example: BAAI/bge-large-zh-v1.5
+          default: BAAI/bge-large-zh-v1.5
+          enum:
+            - BAAI/bge-large-zh-v1.5
+            - BAAI/bge-large-en-v1.5
+            - netease-youdao/bce-embedding-base_v1
+            - BAAI/bge-m3
+            - Pro/BAAI/bge-m3
+        input:
+          description: |
+            Input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single request, pass an array of strings or array of token arrays. The input must not exceed the max input tokens for the model (512 tokens for all models except BAAI/bge-m3 which is 8192), cannot be an empty string.
+          default: "Silicon flow embedding online: fast, affordable, and high-quality embedding services. come try it out!"
+
+          oneOf:
+            - type: string
+              title: string
+              description: The string that will be turned into an embedding. the item must not exceed the max models tokens limitation.
+              default: "Silicon flow embedding online: fast, affordable, and high-quality embedding services. come try it out!"
+              example: "Silicon flow embedding online: fast, affordable, and high-quality embedding services. come try it out!"
+            - type: array
+              title: array
+              description: |
+                The array of strings that will be turned into an embedding. The array length must not exceed the max size, and the item must not exceed the max models tokens limitation.
+                Current, the maximum array size is 32 , At the same time every item must not exceed 512 tokens for current models.
+              minItems: 1
+              maxItems: 32
+              items:
+                type: string
+                default: "['LLM', 'Embedding', 'RAG']"
+                example: "['LLM', 'Embedding', 'RAG']"
+        encoding_format:
+          description: |
+            "The format to return the embeddings in. Can be either `float` or [`base64`](https://pypi.org/project/pybase64/). "
+          example: "float"
+          default: "float"
+          type: string
+          enum: [ "float", "base64" ]
+
+    EmbeddingsResponse:
+      type: object
+      required:
+        - object
+        - model
+        - data
+        - usage
+      properties:
+        object:
+          type: string
+          description: The object type, which is always "list".
+          enum:
+            - [ list ]
+        model:
+          description: The name of the model used to generate the embedding.
+          type: string
+        data:
+          type: array
+          description: The list of embeddings generated by the model.
+          items:
+            type: object
+            required: [ index, object, embedding ]
+            properties:
+              object:
+                type: string
+                enum:
+                  - embedding
+              embedding:
+                type: array
+                items:
+                  type: number
+              index:
+                type: integer
+        usage:
+          type: object
+          description: The usage information for the request.
+          properties:
+            prompt_tokens:
+              type: integer
+              description: The number of tokens used by the prompt.
+            completion_tokens:
+              type: integer
+              description: The number of tokens used by the completion.
+            total_tokens:
+              type: integer
+              description: The total number of tokens used by the request.
+          required:
+            - prompt_tokens
+            - total_tokens
+            - completion_tokens
+
+    RerankRequest:
+      type: object
+      required:
+        - model
+        - query
+        - documents
+      properties:
+        model:
+          type: string
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+          example: BAAI/bge-reranker-v2-m3
+          enum:
+            - BAAI/bge-reranker-v2-m3
+            - Pro/BAAI/bge-reranker-v2-m3
+            - netease-youdao/bce-reranker-base_v1
+        query:
+          type: string
+          description: Required. The search query.
+          example: Apple
+          default: Apple
+        documents:
+          type: array
+          minItems: 1
+          items:
+            type: string
+          description: Currently, only string lists are supported. Document objects will be supported in the future.
+          example: ["apple", "banana", "fruit", "vegetable" ]
+          default: [ "apple", "banana", "fruit", "vegetable" ]
+        top_n:
+          type: integer
+          example: 4
+          description: Number of most relevant documents or indices to return.
+        return_documents:
+          type: boolean
+          default: false
+          description: If false, the response does not include document text; if true, it includes the input document text.
+        max_chunks_per_doc:
+          type: integer
+          default: 1024
+          description: Maximum number of chunks generated from within a document. Long documents are divided into multiple chunks for calculation, and the highest score among the chunks is taken as the document's score.
+        overlap_tokens:
+          type: integer
+          default: 80
+          maximum: 80
+          description: Number of token overlaps between adjacent chunks when documents are chunked.
+
+
+    RerankResponse:
+      type: object
+      required:
+        - id
+        - results
+        - tokens
+      properties:
+        id:
+          type: string
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              document:
+                type: object
+                properties:
+                  text:
+                    type: string
+                description: Original document content.
+              index:
+                type: integer
+                description: The index value of the position in the input candidate doc array.
+              relevance_score:
+                type: number
+                description: Similarity score.
+        tokens:
+          type: object
+          properties:
+            input_tokens:
+              type: integer
+            output_tokens:
+              type: integer
+
+
+    AudioRequest:
+      type: object
+      required:
+        - model
+        - file
+      properties:
+        file:
+          type: string
+          description: The audio file object (not file name) to transcribe
+          example: /path/to/file/audio.mp3
+          format: binary
+        model:
+          type: string
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+          example: FunAudioLLM/SenseVoiceSmall
+          enum:
+            - FunAudioLLM/SenseVoiceSmall
+
+    AudioResponse:
+      type: object
+      description: Represents a transcription response returned by model, based on the provided input.
+      required:
+        - text
+      properties:
+        text:
+          description: The transcribed text.
+          type: string
+
+
+    StringData:
+      type: string
+    ErrorData:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              nullable: false
+            type:
+              type: string
+              nullable: false
+            param:
+              type: string
+              nullable: true
+              default: null
+            code:
+              type: string
+              nullable: true
+              default: null
+          required:
+            - type
+            - message
+            - param
+            - code
+      
+    SuccessfulResponse:
+      type: object
+      required:
+        - requestId
+      properties:
+        requestId:
+          type: integer
+          nullable: true   
+    BadRquestData:
+      type: object
+      required:
+        - message
+        - data
+        - code
+      properties:
+        code:
+          type: integer
+          nullable: true
+          default: false
+          example: 20012
+        message:
+          type: string
+          nullable: false
+        data:
+          type: string
+          nullable: false
+    UnauthorizedData:
+      type: string
+      default: false
+      example: Invalid token
+    NotFoundData:
+      type: string
+      default: false
+      example: 404 page not found
+    RateLimitData:
+      type: object
+      required:
+        - message
+        - data
+      properties:
+        message:
+          type: string
+          example: Request was rejected due to rate limiting. If you want more, please contact contact@siliconflow.cn. Details:TPM limit reached.
+        data:
+          type: string
+    OverloadedtData:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: integer
+          example: 50505
+        message:
+          type: string
+          example: Model service overloaded. Please try again later.
+        data:
+          type: string
+          nullable: false
+    TimeoutData:
+      type: string
+
+
+
+
+    FinishReason:
+      type: string
+      enum:
+        - stop
+        - eos
+        - length
+        - tool_calls
+
+    LogprobsPart:
+      type: object
+      properties:
+        tokens:
+          type: array
+          items:
+            type: string
+          description: List of token strings
+        token_logprobs:
+          type: array
+          items:
+            type: number
+            format: float
+          description: List of token log probabilities
+
+    PromptPart:
+      type: array
+      items:
+        type: object
+        properties:
+          text:
+            type: string
+            example: <s>[INST] What is the capital of France? [/INST]
+            default: <s>[INST] What is the capital of France? [/INST]
+          logprobs:
+            $ref: "#/components/schemas/LogprobsPart"
+
+    UsageData:
+      type: object
+      properties:
+        prompt_tokens:
+          type: integer
+        completion_tokens:
+          type: integer
+        total_tokens:
+          type: integer
+
+    CompletionChoicesData:
+      type: array
+      items:
+        type: object
+        properties:
+          text:
+            type: string
+          finish_reason:
+            $ref: "#/components/schemas/FinishReason"
+          logprobs:
+            allOf:
+              - $ref: "#/components/schemas/LogprobsPart"
+              - nullable: true
+
+    CompletionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        choices:
+          $ref: "#/components/schemas/CompletionChoicesData"
+        prompt:
+          $ref: "#/components/schemas/PromptPart"
+        usage:
+          $ref: "#/components/schemas/UsageData"
+        created:
+          type: integer
+        model:
+          type: string
+        object:
+          type: string
+          enum:
+            - text_completion
+      required:
+        - id
+        - choices
+        - usage
+        - created
+        - model
+        - object
+
+    CompletionStream:
+      oneOf:
+        - $ref: "#/components/schemas/CompletionEvent"
+
+    CompletionEvent:
+      type: object
+      required: [ data ]
+      properties:
+        data:
+          $ref: "#/components/schemas/CompletionChunk"
+
+    CompletionChunk:
+      type: object
+      required: [ id, token, choices, usage, finish_reason ]
+      properties:
+        id:
+          type: string
+        token:
+          $ref: "#/components/schemas/CompletionToken"
+        choices:
+          title: CompletionChoices
+          type: array
+          items:
+            $ref: "#/components/schemas/CompletionChoice"
+        tool_calls:
+          type: array
+          items:
+              $ref: "#/components/schemas/ChatCompletionMessageToolCallChunk"
+        usage:
+          allOf:
+            - $ref: "#/components/schemas/UsageData"
+            - nullable: true
+        finish_reason:
+          allOf:
+            - $ref: "#/components/schemas/FinishReason"
+            - nullable: true
+
+    ChatCompletionMessageToolCallChunk:
+      type: object
+      properties:
+          index:
+              type: integer
+          id:
+              type: string
+              description: The ID of the tool call.
+          type:
+              type: string
+              enum: ["function"]
+              description: The type of the tool. Currently, only `function` is supported.
+          function:
+              type: object
+              properties:
+                  name:
+                      type: string
+                      description: The name of the function to call.
+                  arguments:
+                      type: string
+                      description: The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.
+      required:
+          - index    
+
+    CompletionChoice:
+      type: object
+      required: [ index ]
+      properties:
+        text:
+          type: string
+
+    CompletionToken:
+      type: object
+      required: [ id, text, logprob, special ]
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        logprob:
+          type: number
+          format: float
+        special:
+          type: boolean
+
+    ChatCompletionChoicesData:
+      type: array
+      items:
+        type: object
+        properties:
+          message:
+            type: object
+            properties:
+              role:
+                type: string
+                example: assistant
+              content:
+                type: string
+              reasoning_content: 
+                description: Only the deepseek-R1 series and Qwen/QwQ-32B models support reasoning_content. This part returns the reasoning content, which is at the same level as the content. In each round of the conversation, the model outputs the reasoning chain content (reasoning_content) and the final answer (content). In the next round of the conversation, the reasoning chain content from previous rounds will not be appended to the context.
+                type: string
+              tool_calls:
+                type: array
+                description: The tool calls generated by the model, such as function calls.
+                items:
+                    $ref: "#/components/schemas/ChatCompletionMessageToolCall"
+          finish_reason:
+            $ref: "#/components/schemas/FinishReason"
+
+    ChatCompletionRequestMessageContentPartText:
+      type: object
+      title: Text content part
+      properties:
+        type:
+          type: string
+          enum: [ "text" ]
+          description: The type of the content part.
+          default: "text"
+        text:
+          type: string
+          description: The text content.
+          default: "Describe this picture."
+      required:
+        - type
+        - text
+
+    ChatCompletionRequestMessageContentPartImage:
+      type: object
+      title: Image content part
+      properties:
+        type:
+          type: string
+          enum: [ "image_url" ]
+          description: The type of the content part.
+          default: "image_url"
+        image_url:
+          type: object
+          properties:
+            url:
+              type: string
+              description: Either a URL of the image or the base64 encoded image data. TeleAI/TeleMM only support the base64 encoded image data.
+              default: "https://sf-maas-uat-prod.oss-cn-shanghai.aliyuncs.com/dog.png"
+              example: "https://sf-maas-uat-prod.oss-cn-shanghai.aliyuncs.com/dog.png"
+            detail:
+              type: string
+              description: Specifies the detail level of the image.
+              enum: [ "auto", "low", "high" ]
+              default: "auto"
+          required:
+            - url
+      required:
+        - type
+        - image_url
+
+    ChatCompletionRequestUserMessageContentPart:
+      oneOf:
+        - $ref: "#/components/schemas/ChatCompletionRequestMessageContentPartImage"
+        - $ref: "#/components/schemas/ChatCompletionRequestMessageContentPartText"
+      x-oaiExpandable: true
+
+    ChatCompletionRequest:
+      title: LLM
+      type: object
+      required:
+        - model
+        - messages
+      properties:
+        model:
+          type: string
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+          example: Qwen/QwQ-32B
+          default: Qwen/QwQ-32B
+          enum:
+            - Tongyi-Zhiwen/QwenLong-L1-32B
+            - Qwen/Qwen3-30B-A3B
+            - Qwen/Qwen3-32B
+            - Qwen/Qwen3-14B
+            - Qwen/Qwen3-8B
+            - Qwen/Qwen3-235B-A22B
+            - THUDM/GLM-Z1-32B-0414
+            - THUDM/GLM-4-32B-0414
+            - THUDM/GLM-Z1-Rumination-32B-0414
+            - THUDM/GLM-4-9B-0414
+            - THUDM/GLM-4-9B-0414
+            - Qwen/QwQ-32B
+            - Pro/deepseek-ai/DeepSeek-R1
+            - Pro/deepseek-ai/DeepSeek-R1-0120
+            - Pro/deepseek-ai/DeepSeek-V3
+            - deepseek-ai/DeepSeek-R1
+            - deepseek-ai/DeepSeek-V3
+            - deepseek-ai/DeepSeek-R1-0528-Qwen3-8B
+            - deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+            - deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+            - deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+            - deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
+            - Pro/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+            - Pro/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
+            - deepseek-ai/DeepSeek-V2.5
+            - Qwen/Qwen2.5-72B-Instruct-128K
+            - Qwen/Qwen2.5-72B-Instruct
+            - Qwen/Qwen2.5-32B-Instruct
+            - Qwen/Qwen2.5-14B-Instruct
+            - Qwen/Qwen2.5-7B-Instruct
+            - Qwen/Qwen2.5-Coder-32B-Instruct
+            - Qwen/Qwen2.5-Coder-7B-Instruct
+            - Qwen/Qwen2-7B-Instruct
+            - Qwen/Qwen2-1.5B-Instruct
+            - Qwen/QwQ-32B-Preview
+            - TeleAI/TeleChat2
+            - THUDM/glm-4-9b-chat
+            - Vendor-A/Qwen/Qwen2.5-72B-Instruct
+            - internlm/internlm2_5-7b-chat
+            - internlm/internlm2_5-20b-chat
+            - Pro/Qwen/Qwen2.5-7B-Instruct
+            - Pro/Qwen/Qwen2-7B-Instruct
+            - Pro/Qwen/Qwen2-1.5B-Instruct
+            - Pro/THUDM/chatglm3-6b
+            - Pro/THUDM/glm-4-9b-chat
+        messages:
+          type: array
+          description: A list of messages comprising the conversation so far.
+          items:
+            type: object
+            properties:
+              role:
+                type: string
+                description: 'The role of the messages author. Choice between: system, user, or assistant.'
+                example: user
+                default: user
+                enum:
+                  - user
+                  - assistant
+                  - system
+              content:
+                oneOf:
+                  - type: string
+                    description: The contents of the message.
+                    example: What opportunities and challenges will the Chinese large model industry face in 2025?
+                    default: What opportunities and challenges will the Chinese large model industry face in 2025?
+            required:
+              - role
+              - content
+          minItems: 1
+          maxItems: 10
+        stream:
+          type: boolean
+          description: "If set, tokens are returned as Server-Sent Events as they are made available. Stream terminates with `data: [DONE]`"
+          example: false
+          default: true
+        max_tokens:
+          type: integer
+          description: The maximum number of tokens to generate.
+          example: 512
+          default: 512
+          minimum: 1
+          maximum: 16384
+        enable_thinking:
+          type: boolean
+          description: Switches between thinking and non-thinking modes. Default is True. This field only applies to Qwen3. 
+          example: false
+          default: true        
+        thinking_budget:
+          type: integer
+          description: Maximum number of tokens for chain-of-thought output. This field applies to all Reasoning models.
+          example: 4096
+          default: 4096
+          minimum: 128
+          maximum: 32768
+        min_p:
+          type: number
+          description: Dynamic filtering threshold that adapts based on token probabilities.This field only applies to Qwen3.
+          format: float
+          example: 0.05
+          default: 0.05
+          minimum: 0
+          maximum: 1
+        stop:
+          description: >
+            Up to 4 sequences where the API will stop generating further tokens.
+            The returned text will not contain the stop sequence.
+          default: null
+          nullable: true
+          oneOf:
+            - type: string
+              example: null
+              nullable: true
+            - type: array
+              minItems: 1
+              maxItems: 4
+              items:
+                type: string
+                example: "null"
+        temperature:
+          type: number
+          description: Determines the degree of randomness in the response.
+          format: float
+          example: 0.7
+          default: 0.7
+        top_p:
+          type: number
+          description: The `top_p` (nucleus) parameter is used to dynamically adjust the number of choices for each predicted token based on the cumulative probabilities.
+          format: float
+          example: 0.7
+          default: 0.7
+        top_k:
+          type: number
+          format: float
+          example: 50
+          default: 50
+        frequency_penalty:
+          type: number
+          format: float
+          example: 0.5
+          default: 0.5
+        n:
+          type: integer
+          description: Number of generations to return
+          example: 1
+          default: 1
+        response_format:
+          type: object
+          description: 'An object specifying the format that the model must output.'
+          properties:
+            type:
+              type: string
+              description: 'The type of the response format.'
+              example: text
+        tools:
+          type: array
+          description: >
+                    A list of tools the model may call. Currently, only functions are supported as a tool.
+                    Use this to provide a list of functions the model may generate JSON inputs for. A max of 128 functions are supported.
+          items:
+            $ref: "#/components/schemas/ChatCompletionTool"
+        # tool_choice:
+        #   $ref: "#/components/schemas/ChatCompletionToolChoiceOption"
+
+    ChatCompletionVLMRequest:
+      title: VLM
+      type: object
+      required:
+        - model
+        - messages
+      properties:
+        model:
+          type: string
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+          example: Qwen/Qwen2.5-VL-72B-Instruct
+          default: Qwen/Qwen2.5-VL-72B-Instruct
+          enum:
+            - Qwen/Qwen2.5-VL-32B-Instruct
+            - Qwen/Qwen2.5-VL-72B-Instruct
+            - Qwen/QVQ-72B-Preview
+            - deepseek-ai/deepseek-vl2
+            - Qwen/Qwen2-VL-72B-Instruct
+            - Pro/Qwen/Qwen2-VL-7B-Instruct
+            - Pro/Qwen/Qwen2.5-VL-7B-Instruct
+     
+
+        messages:
+          type: array
+          description: A list of messages comprising the conversation so far.
+          items:
+            type: object
+            properties:
+              role:
+                type: string
+                description: 'The role of the messages author. Choice between: system, user, or assistant.'
+                example: user
+                default: user
+                enum:
+                  - user
+                  - assistant
+                  - system
+              content:
+                oneOf:
+                  - type: array
+                    description: An array of content parts with a defined type, each can be of type `text` or `image_url` when passing in images. You can pass multiple images by adding multiple `image_url` content parts. 
+                    items:
+                      $ref: "#/components/schemas/ChatCompletionRequestUserMessageContentPart"
+                    minItems: 1
+            required:
+              - role
+              - content
+          minItems: 1
+          maxItems: 10
+        stream:
+          type: boolean
+          description: "If set, tokens are returned as Server-Sent Events as they are made available. Stream terminates with `data: [DONE]`"
+          example: false
+          default: false
+        max_tokens:
+          type: integer
+          description: The maximum number of tokens to generate.
+          example: 512
+          default: 512
+          minimum: 1
+          maximum: 4096
+        stop:
+          description: >
+            Up to 4 sequences where the API will stop generating further tokens.
+            The returned text will not contain the stop sequence.
+          default: []
+          nullable: true
+          oneOf:
+            - type: array
+              minItems: 1
+              maxItems: 4
+              items:
+                type: string
+                example: "null"
+            - type: string
+              default: <|endoftext|>
+              example: "\n"
+              nullable: true
+            - type: string
+              default: <|endoftext|>
+              example: ""
+              nullable: true
+
+
+        temperature:
+          type: number
+          description: Determines the degree of randomness in the response.
+          format: float
+          example: 0.7
+          default: 0.7
+        top_p:
+          type: number
+          description: The `top_p` (nucleus) parameter is used to dynamically adjust the number of choices for each predicted token based on the cumulative probabilities.
+          format: float
+          example: 0.7
+          default: 0.7
+        top_k:
+          type: number
+          format: float
+          example: 50
+          default: 50
+        frequency_penalty:
+          type: number
+          format: float
+          example: 0.5
+          default: 0.5
+        n:
+          type: integer
+          description: Number of generations to return
+          example: 1
+          default: 1
+        response_format:
+          type: object
+          description: 'An object specifying the format that the model must output.'
+          properties:
+            type:
+              type: string
+              description: 'The type of the response format.'
+              example: text
+
+
+    ChatCompletionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        choices:
+          $ref: "#/components/schemas/ChatCompletionChoicesData"
+        usage:
+          $ref: "#/components/schemas/UsageData"
+        created:
+          type: integer
+        model:
+          type: string
+        object:
+          type: string
+          enum:
+            - chat.completion
+
+
+    ChatCompletionMessageToolCalls:
+      type: array
+      description: The tool calls generated by the model, such as function calls.
+      items:
+          $ref: "#/components/schemas/ChatCompletionMessageToolCall"
+
+    ChatCompletionMessageToolCall:
+      type: object
+      properties:
+          # TODO: index included when streaming
+          id:
+              type: string
+              description: The ID of the tool call.
+          type:
+              type: string
+              enum: ["function"]
+              description: The type of the tool. Currently, only `function` is supported.
+          function:
+              type: object
+              description: The function that the model called.
+              properties:
+                  name:
+                      type: string
+                      description: The name of the function to call.
+                  arguments:
+                      type: string
+                      description: The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.
+              required:
+                  - name
+                  - arguments
+      required:
+          - id
+          - type
+          - function
+
+    ChatCompletionStream:
+      type: object
+      properties:
+        id:
+          type: string
+        choices:
+          $ref: "#/components/schemas/ChatCompletionChoicesData"
+        created:
+          type: integer
+        model:
+          type: string
+        object:
+          type: string
+          enum:
+            - chat.completion.chunk
+
+    ChatCompletionEvent:
+      type: object
+      required: [ data ]
+      properties:
+        data:
+          $ref: "#/components/schemas/ChatCompletionChunk"
+
+    ChatCompletionChunk:
+      type: object
+      required: [ id, object, created, token, choices ]
+      properties:
+        id:
+          type: string
+        object:
+          type: string
+          enum:
+            - chat.completion.chunk
+        created:
+          type: integer
+        token:
+          $ref: "#/components/schemas/ChatCompletionToken"
+        choices:
+          title: ChatCompletionChoices
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatCompletionChoice"
+        usage:
+          allOf:
+            - $ref: "#/components/schemas/UsageData"
+            - nullable: true
+        finish_reason:
+          allOf:
+            - $ref: "#/components/schemas/FinishReason"
+            - nullable: true
+
+    ChatCompletionToken:
+      type: object
+      required: [ id, text, logprob, special ]
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        logprob:
+          type: number
+          format: float
+        special:
+          type: boolean
+
+    ChatCompletionChoice:
+      type: object
+      required: [ index, delta ]
+      properties:
+        index:
+          type: integer
+        delta:
+          title: ChatCompletionChoiceDelta
+          type: object
+          required: [ content ]
+          properties:
+            content:
+              type: string
+
+    ChatCompletionTool:
+        type: object
+        properties:
+            type:
+                type: string
+                enum: ["function"]
+                description: The type of the tool. Currently, only `function` is supported.
+            function:
+                $ref: "#/components/schemas/FunctionObject"
+        required:
+            - type
+            - function
+
+    FunctionObject:
+        type: object
+        properties:
+            description:
+                type: string
+                description: A description of what the function does, used by the model to choose when and how to call the function.
+            name:
+                type: string
+                description: The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
+            parameters:
+                $ref: "#/components/schemas/FunctionParameters"
+            strict:
+              type: boolean
+              nullable: true
+              default: false
+              description: Whether to enable strict schema adherence when generating the function call. If set to true, the model will follow the exact schema defined in the `parameters` field. Only a subset of JSON Schema is supported when `strict` is `true`. Learn more about Structured Outputs in the [function calling guide](docs/guides/function-calling).
+        required:
+            - name
+
+    FunctionParameters:
+        type: object
+        description: "The parameters the functions accepts, described as a JSON Schema object. See the [guide](/guides/function_calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format. \n\nOmitting `parameters` defines a function with an empty parameter list."
+        additionalProperties: true
+
+    ChatCompletionToolChoiceOption:
+        description: |
+            Controls which (if any) tool is called by the model.
+            `none` means the model will not call any tool and instead generates a message.
+            `auto` means the model can pick between generating a message or calling one or more tools.
+            Specifying a particular tool via `{"type": "function", "function": {"name": "my_function"}}` forces the model to call that tool.
+
+            `none` is the default when no tools are present. `auto` is the default if tools are present.
+        oneOf:
+            - type: string
+              description: >
+                  `none` means the model will not call any tool and instead generates a message.
+                  `auto` means the model can pick between generating a message or calling one or more tools.
+              enum: [none, auto]
+            - $ref: "#/components/schemas/ChatCompletionNamedToolChoice"
+
+    ChatCompletionNamedToolChoice:
+        type: object
+        description: Specifies a tool the model should use. Use to force the model to call a specific function.
+        properties:
+            type:
+                type: string
+                enum: ["function"]
+                description: The type of the tool. Currently, only `function` is supported.
+            function:
+                type: object
+                properties:
+                    name:
+                        type: string
+                        description: The name of the function to call.
+                required:
+                    - name
+        required:
+            - type
+            - function
+
+    upload_image:
+      title: Upload Image
+      description: The image that needs to be uploaded should be converted into base64 format like "data:image/png;base64, XXX"
+      type: string
+      example: data:image/png;base64, XXX
+
+    upload_image_url:
+      title: Upload Image
+      description: The image used for uploading a raw video can be in base64 format or a URL.
+      type: string
+      enum:
+        - data:image/png;base64, XXX
+        - img_url
+      example:  https://inews.gtimg.com/om_bt/Os3eJ8u3SgB3Kd-zrRRhgfR5hUvdwcVPKUTNO6O7sZfUwAA/641
+
+    stable-diffusion-3-5-large:
+      title: stabilityai
+      type: object
+      required:
+        - model
+        - prompt
+        - image_size
+        - batch_size
+        - num_inference_steps
+        - guidance_scale
+      properties:
+        model:
+          type: string
+          default: stabilityai/stable-diffusion-3-5-large
+          enum:
+            - stabilityai/stable-diffusion-3-5-large
+            - stabilityai/stable-diffusion-3-5-large-turbo
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+        prompt:
+          type: string
+          default: an island near sea, with seagulls, moon shining over the sea, light house, boats int he background, fish flying over the sea
+        negative_prompt:
+          title: Negative Prompt
+          type: string
+          description: Negative Prompt
+        image_size:
+          title: Image Size
+          description: Image Size
+          enum:
+            - 1024x1024
+            - 512x1024
+            - 768x512
+            - 768x1024
+            - 1024x576
+            - 576x1024
+          default: 1024x1024
+        batch_size:
+          title: Number Images
+          description: Number Images
+          type: integer
+          minimum: 1
+          maximum: 4
+          default: 1
+        seed:
+          title: Seed
+          type: integer
+          minimum: 0
+          maximum: 9999999999
+        num_inference_steps:
+          title: Number Inference Steps
+          description: Number inference steps，among them, 'stable-diffusion-3-5-large-turbo' is a fixed value of 4.
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 20
+        guidance_scale:
+          title: Guidance Scale
+          description: This value is used to control the degree of match between the generated image and the given prompt. The higher the value, the more the generated image will tend to strictly match the text prompt. The lower the value, the more creative and diverse the generated image will be, potentially containing more unexpected elements.
+          type: number
+          minimum: 0
+          maximum: 20
+          default: 7.5
+        prompt_enhancement: 
+          type: boolean
+          description: Prompt enhancement switch, When enabled, the prompt is optimized to be detailed and model-friendly.
+          example: false
+          default: false
+
+    Janus-Pro-7B:
+      title: deepseekai
+      type: object
+      required:
+        - model
+        - prompt
+      properties:
+        model:
+          type: string
+          default: deepseek-ai/Janus-Pro-7B
+          enum:
+            - deepseek-ai/Janus-Pro-7B
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.The model defaults to generating images with a resolution of 384*384.
+        prompt:
+          type: string
+          default: an island near sea, with seagulls, moon shining over the sea, light house, boats int he background, fish flying over the sea
+        seed:
+          title: Seed
+          type: integer
+          minimum: 0
+          maximum: 9999999999
+
+
+    FLUX.1-schnell:
+      title: FLUX.1-schnell
+      type: object
+      required:
+        - model
+        - prompt
+        - image_size
+      properties:
+        model:
+          type: string
+          default: black-forest-labs/FLUX.1-schnell
+          enum:
+            - black-forest-labs/FLUX.1-schnell
+            - Pro/black-forest-labs/FLUX.1-schnell 
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+        prompt:
+          type: string
+          default: an island near sea, with seagulls, moon shining over the sea, light house, boats int he background, fish flying over the sea
+        image_size:
+          title: Image Size
+          description: image size, format is [width]x[height]
+          enum:
+            - 1024x1024
+            - 512x1024
+            - 768x512
+            - 768x1024
+            - 1024x576
+            - 576x1024
+          default: 1024x1024
+        seed:
+          title: Seed
+          type: integer
+          minimum: 0
+          maximum: 9999999999
+        prompt_enhancement: 
+          type: boolean
+          description: Prompt enhancement switch, When enabled, the prompt is optimized to be detailed and model-friendly.
+          example: false
+          default: false
+
+    FLUX.1-dev:
+      title: FLUX.1-dev
+      type: object
+      required:
+        - model
+        - prompt
+        - image_size
+        - num_inference_steps
+      properties:
+        model:
+          type: string
+          default: black-forest-labs/FLUX.1-dev
+          enum:
+            - black-forest-labs/FLUX.1-dev
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+        prompt:
+          type: string
+          default: an island near sea, with seagulls, moon shining over the sea, light house, boats int he background, fish flying over the sea
+        image_size:
+          title: Image size, format is  [width]x[height], with a maximum of 2359296 pixels.
+          enum:
+            - 1024x1024
+            - 960x1280
+            - 768x1024
+            - 720x1440
+            - 720x1280
+            - others
+          default: 1024x1024
+        seed:
+          title: Seed
+          type: integer
+          minimum: 0
+          maximum: 9999999999
+        num_inference_steps:
+          title: Number Inference Steps
+          description: inference steps
+          type: integer
+          minimum: 1
+          maximum: 30
+          default: 20
+        prompt_enhancement: 
+          type: boolean
+          description: Prompt enhancement switch, When enabled, the prompt is optimized to be detailed and model-friendly.
+          example: false
+          default: false
+    fine-tune-image:
+      title: fine-tune-image
+      type: object
+      required:
+        - model
+        - loras
+        - prompt
+        - image_size
+      properties:
+        model:
+          type: string
+          default: LoRA/black-forest-labs/FLUX.1-dev
+          enum:
+            - LoRA/black-forest-labs/FLUX.1-dev
+          description: Input here is the name of the base LoRA.
+        loras: 
+          type: array
+          description: List of the model's LoRA configurations.
+          items:
+            type: object
+            properties:
+              model_id:
+                type: string
+                description:  One of the fine-tuned model names, format is {user_id}:{suffix}:{uuid}:{check_point}. 
+              strength:
+                type: number
+                format: float
+                description: Each strength corresponds to the strength of a specific model, in a one-to-one relationship with model_id.
+                minimum: 0
+                maximum: 5
+        prompt:
+          type: string
+          default: an island near sea, with seagulls, moon shining over the sea, light house, boats int he background, fish flying over the sea
+        image_size:
+          description: Image size, format is [width]x[height], with a maximum of 2359296 pixels.
+          enum:
+            - 1024x1024
+            - 960x1280
+            - 768x1024
+            - 720x1440
+            - 720x1280
+            - others
+          default: 1024x1024
+        seed:
+          type: integer
+          minimum: 0
+          maximum: 9999999999
+        num_inference_steps:
+          description: Inference steps
+          type: integer
+          minimum: 1
+          maximum: 30
+          default: 20
+        prompt_enhancement: 
+          type: boolean
+          description: Prompt enhancement switch, When enabled, the prompt is optimized to be detailed and model-friendly.
+          example: false
+          default: false
+    
+    FLUX.1-pro:
+      title: FLUX.1-pro
+      type: object
+      required:
+        - model
+        - prompt
+        - width
+        - height
+      properties:
+        model:
+          type: string
+          default: black-forest-labs/FLUX.1-pro
+          enum:
+            - black-forest-labs/FLUX.1-pro
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+        prompt:
+          type: string
+          default: an island near sea, with seagulls, moon shining over the sea, light house, boats int he background, fish flying over the sea
+        image_prompt:
+          type: string
+          description: Optional base64 encoded image to use as a prompt for generation.
+        width:
+          type: integer
+          description: Width of the generated image in pixels. It must be a multiple of 32.
+          minimum: 256
+          maximum: 1440
+          default: 1024
+        height:
+          type: integer
+          description: Width of the generated image in pixels. It must be a multiple of 32.
+          minimum: 256
+          maximum: 1440
+          default: 768
+        prompt_upsampling:
+          type: boolean
+          default: false
+          description: Whether to upsample the prompt. If enabled, the prompt will be automatically adjusted to encourage more creative generation.
+        seed:
+          type: integer
+          minimum: 0
+          maximum: 9999999999
+        steps:
+          description: inference steps.
+          type: integer
+          minimum: 1
+          maximum: 50
+        guidance:
+          type: number
+          description:  This value is used to control the degree of match between the generated image and the given prompt. The higher the value, the more the generated image will tend to strictly match the text prompt. The lower the value, the more creative and diverse the generated image will be, potentially containing more unexpected elements.
+          minimum: 1.5
+          maximum: 5
+        safety_tolerance:
+          type: integer
+          description: Tolerance level for input and output review. Ranges from 0 to 6, where 0 is the strictest and 6 is the most lenient.
+          minimum: 0
+          maximum: 6
+          default: 2
+        interval:
+          type: number
+          description: Sampling parameter for guidance control.
+          minimum: 1
+          maximum: 4  
+        output_format:
+          type: string
+          description: Output format for the generated image. It can be either 'jpeg' or 'png'.
+          enum:
+            - jpeg
+            - png
+
+    Kolors:
+      title: Kolors
+      type: object
+      required:
+        - model
+        - prompt
+        - image_size
+        - batch_size
+        - num_inference_steps
+        - guidance_scale
+      properties:
+        model:
+          type: string
+          default: Kwai-Kolors/Kolors
+          enum:
+            - Kwai-Kolors/Kolors
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+        prompt:
+          type: string
+          default: an island near sea, with seagulls, moon shining over the sea, light house, boats int he background, fish flying over the sea
+        negative_prompt:
+          title: Negative Prompt
+          type: string
+          description: negative prompt
+        image_size:
+          title:  Image size, format is  [width]x[height].
+          enum:
+            - 1024x1024
+            - 960x1280
+            - 768x1024
+            - 720x1440
+            - 720x1280
+            - others
+          default: 1024x1024
+        batch_size:
+          title: Number Images
+          description: number of output images
+          type: integer
+          minimum: 1
+          maximum: 4
+          default: 1
+        seed:
+          title: Seed
+          type: integer
+          minimum: 0
+          maximum: 9999999999
+        num_inference_steps:
+          title: Number Inference Steps
+          description: number of inference steps
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        guidance_scale:
+          title: Guidance Scale
+          description: This value is used to control the degree of match between the generated image and the given prompt. The higher the value, the more the generated image will tend to strictly match the text prompt. The lower the value, the more creative and diverse the generated image will be, potentially containing more unexpected elements.
+          type: number
+          minimum: 0
+          maximum: 20
+          default: 7.5
+        image:
+          $ref: "#/components/schemas/upload_image"
+
+    stable-diffusion-2-1:
+      title: stable-diffusion-2-1
+      type: object
+      required:
+        - model
+        - prompt
+        - image_size
+        - batch_size
+        - num_inference_steps
+        - guidance_scale
+      properties:
+        model:
+          type: string
+          default: stabilityai/stable-diffusion-2-1
+          enum:
+            - stabilityai/stable-diffusion-2-1
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+        prompt:
+          type: string
+          default: an island near sea, with seagulls, moon shining over the sea, light house, boats int he background, fish flying over the sea
+        negative_prompt:
+          title: Negative Prompt
+          type: string
+        image_size:
+          title: Image Size
+          enum:
+            - 512x512
+            - 512x1024
+            - 768x512
+            - 768x1024
+            - 1024x576
+            - 576x1024
+          default: 512x512
+        batch_size:
+          title: Number Images
+          type: integer
+          minimum: 1
+          maximum: 4
+          default: 1
+        seed:
+          title: Seed
+          type: integer
+          minimum: 0
+          maximum: 9999999999
+        num_inference_steps:
+          title: Number Inference Steps
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        guidance_scale:
+          title: Guidance Scale
+          type: number
+          minimum: 0
+          maximum: 20
+          default: 7.5
+        image:
+          $ref: "#/components/schemas/upload_image"
+
+
+    ImagesGenerationResponse:
+      type: object
+      properties:
+        images:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                description:  The URL for the generated image is valid for one hour. Please make sure to download and store it promptly to avoid any issues due to URL expiration.
+                type: string
+        timings:
+          type: object
+          properties:
+            inference:
+              type: number
+              format: float
+        seed:
+          type: integer
+
+    fish-speech-1.4:
+      title: fish-speech-1.4
+      type: object
+      required:
+        - model
+        - input
+        - voice
+      additionalProperties: false
+      properties:
+        model:
+            type: string
+            enum:
+              - fishaudio/fish-speech-1.4
+            description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+        input:
+            type: string
+            description: The text to generate audio for.
+            maxLength: 128000
+            minLength: 1
+        voice:
+            type: string
+            enum: [
+                  "fishaudio/fish-speech-1.4:alex",
+                  "fishaudio/fish-speech-1.4:anna",
+                  "fishaudio/fish-speech-1.4:bella",
+                  "fishaudio/fish-speech-1.4:benjamin",
+                  "fishaudio/fish-speech-1.4:charles",
+                  "fishaudio/fish-speech-1.4:claire",
+                  "fishaudio/fish-speech-1.4:david",
+                  "fishaudio/fish-speech-1.4:diana"
+            ]
+        response_format:
+            description: "The format to audio out. Supported formats are `mp3`, `opus`, `wav`, `pcm`"
+            default: "mp3"
+            type: string
+            enum: ["mp3", "opus", "wav", "pcm"]
+        sample_rate:
+            description: "Control the output sample rate. The default values and differ for different video output types, as follows: opus: Supports 48000 Hz. wav, pcm: Supports 8000, 16000, 24000, 32000, 44100 Hz, with a default of 44100 Hz. mp3: Supports 32000, 44100 Hz, with a default of 44100 Hz."
+            type: number
+            enum: [8000, 16000, 24000, 32000, 44100, 48000]
+        stream:
+            description: "streaming or not"
+            type: boolean
+            default: true
+        speed:
+            type: number
+            description: The speed of the generated audio. Select a value from `0.25` to `4.0`. `1.0` is the default.
+            format: float
+            minimum: 0.25
+            maximum: 4.0
+            default: 1.0
+        gain:
+            type: number
+            format: float
+            minimum: -10.0
+            maximum: 10.0
+            default: 0.00
+    fish-speech-1.5:
+      title: fish-speech-1.5 
+      type: object
+      required:
+        - model
+        - input
+        - voice
+      additionalProperties: false
+      properties:
+        model:
+            type: string
+            enum:
+              - fishaudio/fish-speech-1.5
+            description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+        input:
+            type: string
+            description: The text to generate audio for.
+            example: The text to generate audio for
+            maxLength: 128000
+            minLength: 1
+        voice:
+            type: string
+            enum: [
+                  "fishaudio/fish-speech-1.5:alex",
+                  "fishaudio/fish-speech-1.5:anna",
+                  "fishaudio/fish-speech-1.5:bella",
+                  "fishaudio/fish-speech-1.5:benjamin",
+                  "fishaudio/fish-speech-1.5:charles",
+                  "fishaudio/fish-speech-1.5:claire",
+                  "fishaudio/fish-speech-1.5:david",
+                  "fishaudio/fish-speech-1.5:diana"
+            ]
+        response_format:
+            description: "The format to audio out. Supported formats are `mp3`, `opus`, `wav`, `pcm`"
+            default: "mp3"
+            type: string
+            enum: ["mp3", "opus", "wav", "pcm"]
+        sample_rate:
+            description: "Control the output sample rate. The default values and differ for different video output types, as follows: opus: Supports 48000 Hz. wav, pcm: Supports 8000, 16000, 24000, 32000, 44100 Hz, with a default of 44100 Hz. mp3: Supports 32000, 44100 Hz, with a default of 44100 Hz."
+            type: number
+            example: 32000
+            enum: [8000, 16000, 24000, 32000, 44100, 48000]
+        stream:
+            description: "streaming or not"
+            type: boolean
+            default: true
+        speed:
+            type: number
+            description: The speed of the generated audio. Select a value from `0.25` to `4.0`. `1.0` is the default.
+            format: float
+            minimum: 0.25
+            maximum: 4.0
+            default: 1.0
+        gain:
+            type: number
+            format: float
+            minimum: -10.0
+            maximum: 10.0
+            default: 0.00
+    GPT-SoVITS:
+      title: GPT-SoVITS
+      type: object
+      required:
+        - model
+        - input
+        - voice
+      additionalProperties: false
+      properties:
+        model:
+            type: string
+            enum:
+              - RVC-Boss/GPT-SoVITS
+            description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+        input:
+            type: string
+            description: The text to generate audio for.
+            maxLength: 128000
+            minLength: 1
+        voice:
+            type: string
+            enum: [
+                  "RVC-Boss/GPT-SoVITS:alex",
+                  "RVC-Boss/GPT-SoVITS:anna",
+                  "RVC-Boss/GPT-SoVITS:bella",
+                  "RVC-Boss/GPT-SoVITS:benjamin",
+                  "RVC-Boss/GPT-SoVITS:charles",
+                  "RVC-Boss/GPT-SoVITS:claire",
+                  "RVC-Boss/GPT-SoVITS:david",
+                  "RVC-Boss/GPT-SoVITS:diana"
+            ]
+        response_format:
+            description: "The format to audio out. Supported formats are `mp3`, `opus`, `wav`, `pcm`"
+            default: "mp3"
+            type: string
+            enum: ["mp3", "opus", "wav", "pcm"]
+        sample_rate:
+            description: "Control the output sample rate. The default values and differ for different video output types, as follows: opus: Supports 48000 Hz. wav, pcm: Supports 8000, 16000, 24000, 32000, 44100 Hz, with a default of 44100 Hz. mp3: Supports 32000, 44100 Hz, with a default of 44100 Hz."
+            type: number
+            enum: [8000, 16000, 24000, 32000, 44100, 48000]
+        stream:
+            description: "streaming or not"
+            type: boolean
+            default: true
+        speed:
+            type: number
+            description: The speed of the generated audio. Select a value from `0.25` to `4.0`. `1.0` is the default.
+            format: float
+            minimum: 0.25
+            maximum: 4.0
+            default: 1.0
+        gain:
+            type: number
+            format: float
+            minimum: -10.0
+            maximum: 10.0
+            default: 0.00
+            
+    CosyVoice2-0.5B:
+      title: CosyVoice2-0.5B
+      type: object
+      required:
+        - model
+        - input
+        - voice
+      additionalProperties: false
+      properties:
+        model:
+            type: string
+            enum:
+              - FunAudioLLM/CosyVoice2-0.5B
+            description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+        input:
+            type: string
+            description: For natural language instructions, add a special end marker "<|endofprompt|>" before the natural language description. These descriptions cover aspects such as emotion, speaking speed, role-playing, and dialects. For detailed instructions, insert pitch bursts between text markers, using markers like "[laughter]" and "[breath]." Additionally, we apply pitch feature markers to phrases; for example:Can you say it with a happy emotion? <|endofprompt|> Today is really happy, Spring Festival is coming! I’m so happy, Spring Festival is coming! [laughter] [breath].
+            example: Can you say it with a happy emotion? <|endofprompt|>I'm so happy, Spring Festival is coming! 
+            default: Can you say it with a happy emotion? <|endofprompt|>I'm so happy, Spring Festival is coming! 
+          
+            maxLength: 128000
+            minLength: 1
+        voice:
+            type: string
+            enum: [
+                  "FunAudioLLM/CosyVoice2-0.5B:alex",
+                  "FunAudioLLM/CosyVoice2-0.5B:anna",
+                  "FunAudioLLM/CosyVoice2-0.5B:bella",
+                  "FunAudioLLM/CosyVoice2-0.5B:benjamin",
+                  "FunAudioLLM/CosyVoice2-0.5B:charles",
+                  "FunAudioLLM/CosyVoice2-0.5B:claire",
+                  "FunAudioLLM/CosyVoice2-0.5B:david",
+                  "FunAudioLLM/CosyVoice2-0.5B:diana"
+            ]
+        response_format:
+            description: "The format to audio out. Supported formats are `mp3`, `opus`, `wav`, `pcm`"
+            default: "mp3"
+            type: string
+            enum: ["mp3", "opus", "wav", "pcm"]
+        sample_rate:
+            description: "Control the output sample rate. The default values and differ for different video output types, as follows: opus: Supports 48000 Hz. wav, pcm: Supports 8000, 16000, 24000, 32000, 44100 Hz, with a default of 44100 Hz. mp3: Supports 32000, 44100 Hz, with a default of 44100 Hz."
+            type: number
+            default: 32000
+
+        stream:
+            description: "streaming or not"
+            type: boolean
+            default: true
+        speed:
+            type: number
+            description: The speed of the generated audio. Select a value from `0.25` to `4.0`. `1.0` is the default.
+            format: float
+            minimum: 0.25
+            maximum: 4.0
+            default: 1.0
+        gain:
+            type: number
+            format: float
+            minimum: -10.0
+            maximum: 10.0
+            default: 0.00
+
+    Lightricks_LTX-Video:
+      title: Lightricks/LTX-Video
+      type: object
+      required:
+        - model
+        - prompt
+      properties:
+        model:
+          type: string
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+          enum:
+            - Lightricks/LTX-Video
+        prompt:
+          type: string
+          description: The text prompt to generate the video description from.
+        image: 
+          type: string
+          description: The input only supports image links via URL.
+        seed:
+          type: integer
+          description: The seed for the random number generator.
+
+    tencent_HunyuanVideo:
+      title: HunyuanVideo
+      type: object
+      required:
+        - model
+        - prompt
+      properties:
+        model:
+          type: string
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+          enum:
+            - tencent/HunyuanVideo
+        prompt:
+          type: string
+          description: The text prompt to generate the video description from.
+        seed:
+          type: integer
+          description: The seed for the random number generator.
+
+    T2V:
+      title: Wan-AI 文生视频
+      type: object
+      required:
+        - model
+        - prompt
+        - image_size
+      properties:
+        model:
+          type: string
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible.
+          enum:
+            - Wan-AI/Wan2.1-T2V-14B
+            - Wan-AI/Wan2.1-T2V-14B-Turbo
+        prompt:
+          type: string
+          description: The text prompt to generate the video description from.
+        negative_prompt:
+          type: string
+          description: negative prompt
+        image_size:
+          type: string
+          description: Length-width ratio of the generated image.
+          enum: ["1280x720","720x1280","960x960"]
+        seed:
+          type: integer
+          description: The seed for the random number generator. 
+
+
+    I2V:
+      title: Wan-AI 
+      type: object
+      required:
+        - model
+        - prompt
+        - image_size
+      properties:
+        model:
+          type: string
+          description: Corresponding Model Name. To better enhance service quality, we will make periodic changes to the models provided by this service, including but not limited to model on/offlining and adjustments to model service capabilities. We will notify you of such changes through appropriate means such as announcements or message pushes where feasible. 
+          enum:
+            - Wan-AI/Wan2.1-T2V-14B
+            - Wan-AI/Wan2.1-T2V-14B-Turbo
+            - Wan-AI/Wan2.1-I2V-14B-720P
+            - Wan-AI/Wan2.1-I2V-14B-720P-Turbo
+        prompt:
+          type: string
+          description: The text prompt to generate the video description from.
+        negative_prompt:
+          type: string
+          description: negative prompt
+        image_size:
+          type: string
+          description: Length-width ratio of the generated image.
+          enum: ["1280x720","720x1280","960x960"]
+        image:
+          description: When selecting the model Wan-AI/Wan2.1-I2V-14B-720P or Wan-AI/Wan2.1-I2V-14B-720P-Turbo, the image parameter is a required field.
+          $ref: "#/components/schemas/upload_image_url"
+        seed:
+          type: integer
+          description: The seed for the random number generator. 
+
+
+    getVideosRequest:
+      type: object
+      required:
+        - requestId
+      properties:
+        requestId:
+          type: string
+          description: The requestId returned by the interface submit.
+  
+
+    getVideosResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status of the operation. Possible values are 'Succeed','InQueue','InProgress','Failed'.
+          enum:
+            - Succeed
+            - InQueue
+            - InProgress
+            - Failed
+        reason:
+          type: string
+          description: Reason for the operation
+        results:
+          type: object
+          properties:
+            videos:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    description: The URL for the generated image is valid for one hour. Please make sure to download and store it promptly to avoid any issues due to URL expiration.
+            timings:
+              type: object
+              properties:
+                inference:
+                  type: number
+                  format: double
+                  description: Inference time
+            seed:
+              type: integer
+              description: Seed value
