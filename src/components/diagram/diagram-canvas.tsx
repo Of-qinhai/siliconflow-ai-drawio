@@ -55,6 +55,8 @@ export function DiagramCanvas() {
   const [enhanceError, setEnhanceError] = useState<string | null>(null);
   const [showEnhanceSuccess, setShowEnhanceSuccess] = useState(false);
   const [enhancedImageUrl, setEnhancedImageUrl] = useState<string | null>(null);
+  const [showPromptDialog, setShowPromptDialog] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState("");
 
   // 导出图表
   const handleExportClick = async () => {
@@ -118,13 +120,14 @@ export function DiagramCanvas() {
   };
 
   // AI 美化图表
-  const handleEnhance = async (mode: EnhanceMode = 'comprehensive') => {
+  const handleEnhance = async (mode: EnhanceMode = 'comprehensive', userPrompt?: string) => {
     setIsEnhancing(true);
     setEnhanceError(null);
     setShowEnhanceSuccess(false);
 
     try {
       console.log("[DiagramCanvas] Starting enhancement, mode:", mode);
+      console.log("[DiagramCanvas] Custom prompt:", userPrompt);
 
       // 1. 导出当前图表 XML
       const currentXml = await exportDiagram();
@@ -154,6 +157,7 @@ export function DiagramCanvas() {
         xml: currentXml,
         mode: mode,
         imageData: imageData,
+        customPrompt: userPrompt, // 添加自定义提示词
         options: {
           colorScheme: 'modern',
           addShadows: true,
@@ -250,7 +254,7 @@ export function DiagramCanvas() {
 
         {/* AI 美化按钮 */}
         <button
-          onClick={() => handleEnhance('comprehensive')}
+          onClick={() => setShowPromptDialog(true)}
           disabled={isEnhancing || !chartXML || chartXML.trim() === ''}
           className={cn(
             "p-2 rounded-lg bg-white/90 backdrop-blur shadow-md",
@@ -340,6 +344,64 @@ export function DiagramCanvas() {
           nav: true,
         }}
       />
+
+      {/* AI 美化提示词输入弹窗 */}
+      <Dialog open={showPromptDialog} onOpenChange={setShowPromptDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-600" />
+              AI 美化图表
+            </DialogTitle>
+            <DialogDescription>
+              输入您的美化需求，AI 会根据您的描述来美化图表
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-4 space-y-4">
+            {/* 输入框 */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                美化提示词
+              </label>
+              <textarea
+                value={customPrompt}
+                onChange={(e) => setCustomPrompt(e.target.value)}
+                placeholder="例如：让图表更简洁，使用蓝色配色方案，增加阴影效果..."
+                className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                如果不输入，将使用默认的美化方案
+              </p>
+            </div>
+
+            {/* 操作按钮 */}
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowPromptDialog(false);
+                  setCustomPrompt("");
+                }}
+                className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+              >
+                取消
+              </button>
+              <button
+                onClick={() => {
+                  setShowPromptDialog(false);
+                  handleEnhance('comprehensive', customPrompt || undefined);
+                  setCustomPrompt("");
+                }}
+                disabled={isEnhancing}
+                className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="w-4 h-4" />
+                开始美化
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* 美化后图片预览弹窗 */}
       <Dialog open={!!enhancedImageUrl} onOpenChange={(open) => !open && setEnhancedImageUrl(null)}>

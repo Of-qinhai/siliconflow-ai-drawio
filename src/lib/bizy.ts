@@ -52,6 +52,7 @@ export interface EnhanceRequest {
   xml: string;
   mode: EnhanceMode;
   imageData?: string; // Base64 编码的图片数据（用于视觉模型）
+  customPrompt?: string; // 用户自定义的美化提示词
   options?: {
     targetWidth?: number;
     targetHeight?: number;
@@ -198,56 +199,8 @@ export function getBizyConfig(): BizyConfig {
         },
         // BizyAir WebApp API 请求转换
         transformRequest: (data: EnhanceRequest) => {
-          // 优化后的提示词 - 增加边距和居中控制
-//           const prompt = `请将这个架构图美化成现代化、专业的设计风格：
-
-// 【画布与边距 - 最重要】
-// - 确保图表内容居中显示,四周留有充足的空白边距
-// - 顶部边距: 至少100像素
-// - 底部边距: 至少100像素
-// - 左侧边距: 至少100像素
-// - 右侧边距: 至少100像素
-// - 整体图表要在画布中居中,不要偏左、偏上或偏下
-// - 计算图表总宽度和总高度,确保居中对齐
-
-// 【布局要求】
-// - 从上到下清晰分层,每层组件水平对齐且居中
-// - 第一层距离顶部至少100px开始
-// - 组件之间保持合适的间距(60-100px)
-// - 层与层之间有明显的垂直间距(120-150px)
-// - 每层的组件要作为一个整体居中对齐
-
-// 【配色方案】
-// - 顶层使用蓝紫色渐变背景
-// - 中间层使用蓝绿色渐变背景
-// - 底层使用橙粉色渐变背景
-// - 每层的组件使用浅色填充,深色边框
-// - 连接线使用深灰色,带箭头
-
-// 【视觉效果】
-// - 所有组件使用圆角矩形,添加阴影效果
-// - 文字清晰可读,标题使用粗体大字号
-// - 整体风格现代、简洁、专业
-
-// 【重要约束】
-// - 保持原有的层次结构和组件名称不变
-// - 只优化视觉效果,不添加额外文字
-// - 确保所有文字清晰完整,不要截断
-// - 图表必须居中,四周留白均匀`;
-
-//           // 注意：imageData 应该已经是上传后的 URL
-//           const imageUrl = data.imageData || "";
-
-//           return {
-//             web_app_id: 37169,
-//             suppress_preview_output: false,
-//             input_values: {
-//               "78:LoadImage.image": imageUrl,
-//               "115:BizyAirSiliconCloudLLMAPI.user_prompt": prompt
-//             }
-//           };
-
-  const prompt = `画一块黑板，在上面用粉笔画下这个图表`;
+          // 使用用户自定义提示词，如果没有则使用默认提示词
+          const prompt = data.customPrompt || `画一块黑板，在上面用粉笔画下这个图表`;
 
           // 注意：imageData 应该已经是上传后的 URL
           const imageUrl = data.imageData || "";
