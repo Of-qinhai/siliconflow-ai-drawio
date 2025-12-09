@@ -379,10 +379,13 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
 function EmptyState({ onExampleClick }: { onExampleClick: (text: string) => void }) {
   const examples = [
     "画一个电商系统的微服务架构图",
-    "创建一个企业网络拓扑图，包含核心路由器、交换机、防火墙",
+    "创建一个用户管理系统的 UML 类图，包含 User、Order、Product 类",
     "设计一个完整的 CI/CD 流程图，从代码提交到生产部署",
-    "绘制一个 Kubernetes 集群架构图",
-    "画一个用户注册登录的详细流程图",
+    "绘制一个用户登录的 UML 时序图",
+    "画一个项目管理的思维导图，包含需求、设计、开发、测试等阶段",
+    "创建一个企业网络拓扑图，包含核心路由器、交换机、防火墙",
+    "设计一个移动 App 的线框图，包含首页、列表页、详情页",
+    "绘制一个订单处理的 BPMN 业务流程图",
   ];
 
   return (
