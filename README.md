@@ -3,6 +3,15 @@
 > 告别复杂的绘图工具，只需要说出你的需求，AI 就能帮你画出漂亮的流程图、架构图、UML 图...
 
 ## 产品亮点
+
+ ![效果图1](./public/1.png)
+ ![效果图2](./public/2.png)
+### 使用美化功能，增加提示词之后的效果
+ ![效果图3](./public/3.png)
+ ![效果图4](./public/4.png)
+ ![效果图5](./public/5.png)
+ ![效果图6](./public/6.png)
+ ![效果图7](./public/7.png)
  ![演示视频](./public/20251207201314.gif)
 ### 一句话生成专业图表
 
@@ -92,7 +101,7 @@ API Key 加密存储在浏览器 sessionStorage，不上传服务器，保护隐
 
 首次使用需要配置 SiliconFlow API Key：
 
-1. 访问 [SiliconFlow 官网](https://cloud.siliconflow.cn/i/ThYREh3H) 注册账号
+1. 访问 [SiliconFlow 官网](https://cloud.siliconflow.cn/i/ThYREh3H) 注册账号 ，并访问 [Bizyair 官网](https://bizyair.cn/) 登录获取赠送额度 ，如果想体验美图的功能
 2. 获取 API Key（新用户赠送免费额度）
 3. 点击右上角设置按钮，输入 API Key
 4. 保存后即可开始使用

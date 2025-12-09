@@ -7,7 +7,7 @@ services:
     container_name: e-ppt
     restart: unless-stopped
     ports:
-      - "4000:3000"
+      - "8283:3000"
     environment:
       NODE_ENV: production
       PORT: 3000
