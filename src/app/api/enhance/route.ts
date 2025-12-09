@@ -145,7 +145,7 @@ export async function POST(req: Request) {
     }
 
     const body: EnhanceRequest = await req.json();
-    const { xml, mode, imageData, options } = body;
+    const { xml, mode, imageData, options, customPrompt } = body;
 
     console.log("[Enhance API] Mode:", mode);
     console.log("[Enhance API] XML length:", xml?.length || 0);
@@ -177,14 +177,38 @@ export async function POST(req: Request) {
         console.log("[Enhance API] Image uploaded:", uploadResult.imageUrl);
 
         // 2. 使用视觉模型分析
-        const analysisPrompt = `
+        let analysisPrompt = `
 你是一位专业的图表美化专家。请分析这个 draw.io 图表的截图，识别视觉问题：
 
 1. 布局问题：节点重叠、对齐不佳、间距不均
 2. 配色问题：颜色单调、对比度不足、缺少层次
-3. 连线问题：交叉混乱、流向不清晰
+3. **连线问题（最高优先级）**：
+   - **连线是否穿过节点？（严重问题，必须修复）**
+   - 连线是否交叉混乱？
+   - 流向是否清晰？
+   - 连接点位置是否合理？
 4. 文字问题：大小不合适、被截断
 
+## 优化要求
+
+**严格禁止连线穿过节点**:
+- 调整节点位置，确保节点间距至少 80-120px
+- 使用分层布局（垂直或水平分层）
+- 为每条连线设置精确的连接点 (exitX, exitY, entryX, entryY)
+- 使用 edgeStyle=orthogonalEdgeStyle 让连线自动绕开节点
+- 确保连线从节点边缘连接，不穿过节点内部
+
+连线连接点示例：
+- 垂直连接（上到下）: exitX=0.5;exitY=1;entryX=0.5;entryY=0
+- 水平连接（左到右）: exitX=1;exitY=0.5;entryX=0;entryY=0.5
+`;
+
+        // 如果用户提供了自定义提示词，添加到分析提示中
+        if (customPrompt && customPrompt.trim()) {
+          analysisPrompt += `\n## 用户额外要求\n${customPrompt}\n\n`;
+        }
+
+        analysisPrompt += `
 基于分析，生成优化后的 draw.io XML（<root> 标签内容），改进这些问题。
 只返回 XML，不要添加任何解释。
 
@@ -336,7 +360,7 @@ ${xml.slice(0, 2000)}
     const systemPrompt = getEnhancePrompt(mode);
 
     // 构建用户消息
-    const userMessage = buildEnhanceUserMessage(xml, mode, options);
+    const userMessage = buildEnhanceUserMessage(xml, mode, options, customPrompt);
 
     console.log("[Enhance API] Starting enhancement...");
 

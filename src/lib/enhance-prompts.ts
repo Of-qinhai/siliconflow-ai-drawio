@@ -48,10 +48,18 @@ const LAYOUT_ENHANCE_PROMPT = `${BASE_ENHANCE_PROMPT}
 - 架构图: 分层垂直布局（客户端→网关→服务→数据）
 - 网络拓扑: 树形或星形布局
 
-### 4. 连线优化
-- 减少连线交叉
-- 使用 edgeStyle=orthogonalEdgeStyle（直角连线）
-- 添加合适的 exitX/exitY 和 entryX/entryY`;
+### 4. 连线优化 - 避免穿越节点
+- **严格禁止连线穿过节点**: 连线必须从节点的边缘连接，不能穿过任何节点的内部区域
+- 使用 edgeStyle=orthogonalEdgeStyle（直角连线，自动避开节点）
+- 精确设置连接点位置:
+  * exitX/exitY: 连线从源节点的哪个位置出发（0-1之间的值）
+  * entryX/entryY: 连线到达目标节点的哪个位置（0-1之间的值）
+  * 示例: exitX=0.5, exitY=1 表示从节点底部中心出发
+  * 示例: entryX=0.5, entryY=0 表示到达节点顶部中心
+- 垂直连接优先: 上下层节点使用 exitY=1/exitY=0 的垂直连接
+- 水平连接规则: 左右节点使用 exitX=1/entryX=0 的水平连接
+- 避免斜向穿越: 如果必须斜向连接，调整连接点位置避开中间节点
+- 检查路径: 生成 XML 后，检查每条连线的路径是否会穿过其他节点，如需要则调整节点位置或连接点`;
 
 /**
  * 配色优化提示词
@@ -102,8 +110,11 @@ const COMPREHENSIVE_ENHANCE_PROMPT = `${BASE_ENHANCE_PROMPT}
 
 ### 1. 布局优化
 - 确保节点对齐和均匀分布
-- 优化间距（节点间距 60-100px）
-- 减少连线交叉
+- 优化间距（节点间距 80-120px，避免过于拥挤）
+- **严格避免连线交叉和穿越节点**:
+  * 调整节点位置，确保连线路径清晰
+  * 使用分层布局，让连线主要在垂直或水平方向流动
+  * 检查每条连线是否会穿过其他节点，如有则调整布局
 - 分层清晰（架构图用垂直分层）
 
 ### 2. 配色优化
@@ -121,8 +132,12 @@ const COMPREHENSIVE_ENHANCE_PROMPT = `${BASE_ENHANCE_PROMPT}
 ### 4. 细节优化
 - 统一节点尺寸（同类型节点保持一致）
 - 容器使用浅灰背景和顶部标题
-- 连线使用直角样式 (edgeStyle=orthogonalEdgeStyle)
-- 添加连线标签说明关键信息
+- **连线样式严格规范**:
+  * 使用直角样式 (edgeStyle=orthogonalEdgeStyle)
+  * 设置精确的连接点 (exitX, exitY, entryX, entryY)
+  * 确保连线不穿过任何节点
+  * 添加连线标签说明关键信息
+- **连线路径检查**: 在生成 XML 后，验证每条连线的起点、终点和路径，确保不穿过中间节点
 
 ### 5. 保持专业性
 - 不要过度装饰
@@ -151,18 +166,43 @@ const VISUAL_ENHANCE_PROMPT = `你是一位专业的图表美化专家，具有�
 - 是否缺少视觉层次？
 - 重要信息是否突出？
 
-### 3. 连线问题
+### 3. 连线问题 - 重点关注
+- **连线是否穿过节点？（严重问题，必须修复）**
 - 连线是否交叉混乱？
 - 流向是否清晰？
 - 是否需要添加箭头或标签？
+- 连接点位置是否合理？（应该从节点边缘连接，不是穿过节点）
 
 ### 4. 文字问题
 - 字体大小是否合适？
 - 是否有文字被截断？
 - 标签是否清晰？
 
+## 优化策略
+
+### 避免连线穿越节点（最高优先级）
+1. 调整节点位置，增加节点间距（至少 80-120px）
+2. 使用分层布局，让连线主要沿垂直或水平方向
+3. 为每条连线设置精确的连接点:
+   - exitX/exitY: 源节点的连接点（0=左/上, 0.5=中, 1=右/下）
+   - entryX/entryY: 目标节点的连接点
+4. 使用 edgeStyle=orthogonalEdgeStyle 让连线自动绕开节点
+5. 检查路径: 确保连线从节点边缘连接，不穿过任何节点内部
+
+### 连线优化示例
+垂直连接（上到下）:
+\`\`\`
+exitX=0.5;exitY=1;entryX=0.5;entryY=0
+\`\`\`
+
+水平连接（左到右）:
+\`\`\`
+exitX=1;exitY=0.5;entryX=0;entryY=0.5
+\`\`\`
+
 ## 输出要求
 根据分析结果，生成优化后的完整 draw.io XML（<root> 标签内容）。
+**特别注意**: 确保所有连线不穿过节点，必要时调整节点位置或连接点。
 不要添加任何解释，只返回 XML 代码。`;
 
 /**
@@ -186,7 +226,7 @@ export function getEnhancePrompt(mode: EnhanceMode): string {
 /**
  * 构建用户消息
  */
-export function buildEnhanceUserMessage(xml: string, _mode: EnhanceMode, options?: any): string {
+export function buildEnhanceUserMessage(xml: string, _mode: EnhanceMode, options?: any, customPrompt?: string): string {
   let message = `请对以下 draw.io 图表进行美化：\n\n`;
 
   // 添加选项说明
@@ -205,6 +245,11 @@ export function buildEnhanceUserMessage(xml: string, _mode: EnhanceMode, options
       message += `- 字体大小: ${options.fontSize}\n`;
     }
     message += `\n`;
+  }
+
+  // 添加用户自定义提示词
+  if (customPrompt && customPrompt.trim()) {
+    message += `## 用户额外要求\n${customPrompt}\n\n`;
   }
 
   message += `原始 XML:\n\`\`\`xml\n${xml}\n\`\`\`\n\n`;

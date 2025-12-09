@@ -37,21 +37,44 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
   } = useDiagram();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousXMLRef = useRef<string>("");
   const [inputValue, setInputValue] = useState("");
+  const [autoScroll, setAutoScroll] = useState(true);
+  const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleDisplayChart = useCallback(
-    (xml: string) => {
+    (xml: string, isStreaming: boolean = true) => {
       const currentXml = xml || "";
       const convertedXml = convertToLegalXml(currentXml);
 
       if (convertedXml !== previousXMLRef.current) {
         previousXMLRef.current = convertedXml;
-        try {
-          const replacedXML = replaceNodes(chartXML, convertedXml);
-          loadDiagram(replacedXML);
-        } catch (error) {
-          loadDiagram(convertedXml);
+
+        // 如果是流式渲染，使用防抖延迟更新
+        if (isStreaming) {
+          // 清除之前的定时器
+          if (updateTimerRef.current) {
+            clearTimeout(updateTimerRef.current);
+          }
+
+          // 设置新的定时器，500ms 后更新
+          updateTimerRef.current = setTimeout(() => {
+            try {
+              const replacedXML = replaceNodes(chartXML, convertedXml);
+              loadDiagram(replacedXML);
+            } catch (error) {
+              loadDiagram(convertedXml);
+            }
+          }, 500);
+        } else {
+          // 非流式渲染，立即更新
+          try {
+            const replacedXML = replaceNodes(chartXML, convertedXml);
+            loadDiagram(replacedXML);
+          } catch (error) {
+            loadDiagram(convertedXml);
+          }
         }
       }
     },
@@ -95,11 +118,33 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
     },
   });
 
+  // 检测用户是否手动滚动
+  const handleScroll = useCallback(() => {
+    if (!messagesContainerRef.current) return;
+
+    const container = messagesContainerRef.current;
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+
+    setAutoScroll(isNearBottom);
+  }, []);
+
+  // 只在自动滚动模式下滚动到底部
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (autoScroll) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, autoScroll]);
 
   const processedToolCalls = useRef<Set<string>>(new Set());
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (updateTimerRef.current) {
+        clearTimeout(updateTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (messages.length === 0) return;
@@ -118,10 +163,12 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
           }
 
           if (state === "input-streaming" || state === "input-available") {
-            handleDisplayChart(cleanXml);
+            // 流式渲染中，使用防抖
+            handleDisplayChart(cleanXml, true);
           }
           else if (state === "output-available" && !processedToolCalls.current.has(toolCallId)) {
-            handleDisplayChart(cleanXml);
+            // 完成时立即更新
+            handleDisplayChart(cleanXml, false);
             processedToolCalls.current.add(toolCallId);
           }
         }
@@ -150,6 +197,7 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
       );
 
       setInputValue("");
+      setAutoScroll(true); // 发送新消息时重新启用自动滚动
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -159,6 +207,7 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
     setMessages([]);
     clearDiagram();
     previousXMLRef.current = "";
+    setAutoScroll(true); // 清空时重新启用自动滚动
   };
 
   const handleExampleClick = (text: string) => {
@@ -206,7 +255,11 @@ export function ChatPanel({ onOpenApiKeyModal, onTogglePanel }: ChatPanelProps) 
       </div>
 
       {/* 消息列表 */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div
+        ref={messagesContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto p-4 space-y-4"
+      >
         {messages.length === 0 ? (
           <EmptyState onExampleClick={handleExampleClick} />
         ) : (

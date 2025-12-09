@@ -172,10 +172,12 @@ export function DiagramProvider({ children }: { children: React.ReactNode }) {
           originalResolver(value);
         };
 
-        // 导出图片,添加边距
+        // 导出图片,添加边距,使用3倍缩放提高清晰度
         drawioRef.current.exportDiagram({
           format: "png",
-          border: "20" // 添加20像素的边距
+          scale: 5.0,            // 3倍缩放,导出高清图片
+          border: "20",          // 添加20像素的边距
+          background: '#ffffff'  // 白色背景
         });
       } else {
         reject(new Error("DrawIO reference not available"));
