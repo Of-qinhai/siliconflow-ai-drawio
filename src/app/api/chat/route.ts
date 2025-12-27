@@ -67,6 +67,8 @@ export async function POST(req: Request) {
   try {
     const encodedApiKey = req.headers.get("X-Encrypted-Api-Key");
     const modelId = req.headers.get("X-Model-Id") || "Qwen/Qwen2.5-72B-Instruct";
+    const debugToolCalls =
+      req.headers.get("X-Debug-Tool-Calls") === "1" || process.env.SILICONFLOW_DEBUG_TOOL_CALLS === "1";
 
     if (!encodedApiKey) {
       return Response.json({ error: "Missing SiliconFlow API Key" }, { status: 401 });
@@ -79,7 +81,7 @@ export async function POST(req: Request) {
 
     const { messages, xml } = await req.json();
 
-    const provider = createSiliconFlowProvider(apiKey);
+    const provider = createSiliconFlowProvider(apiKey, { debugToolCalls });
     const model = provider(modelId);
 
     const lastMessage = messages[messages.length - 1];
@@ -147,6 +149,14 @@ export async function POST(req: Request) {
       onError: errorHandler,
     });
   } catch (error) {
+    const causeData = (error as any)?.cause?.data;
+    if (causeData) {
+      console.error("[/api/chat] Invalid response data from provider:", causeData);
+      if ((causeData as any)?.function) {
+        console.error("[/api/chat] Invalid response data function:", (causeData as any).function);
+      }
+    }
+
     return Response.json(
       {
         error: errorHandler(error),
