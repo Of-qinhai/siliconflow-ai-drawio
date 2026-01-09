@@ -232,9 +232,9 @@ export const RECOMMENDED_MODELS = [
     description: "耐心等待，推理能力强，支持逐过程渲染",
   },
   {
-    id: "zai-org/GLM-4.6",
-    name: "GLM-4.6 335B",
-    description: "耐心等待，逐过程渲染，适合复杂图表生成",
+    id: "Pro/zai-org/GLM-4.7",
+    name: "GLM-4.7",
+    description: "355B ,智谱出品，逐过程渲染，适合复杂图表生成",
   },
   {
     id: "Pro/moonshotai/Kimi-K2-Thinking",
@@ -248,4 +248,4 @@ export type ModelId = (typeof RECOMMENDED_MODELS)[number]["id"];
 /**
  * 默认模型
  */
-export const DEFAULT_MODEL: ModelId = "Pro/deepseek-ai/DeepSeek-V3";
+export const DEFAULT_MODEL: ModelId = "Pro/zai-org/GLM-4.7";
