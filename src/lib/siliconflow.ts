@@ -232,11 +232,6 @@ export const RECOMMENDED_MODELS = [
     description: "耐心等待，推理能力强，支持逐过程渲染",
   },
   {
-    id: "Pro/zai-org/GLM-4.7",
-    name: "GLM-4.7",
-    description: "355B ,智谱出品，逐过程渲染，适合复杂图表生成",
-  },
-  {
     id: "Pro/moonshotai/Kimi-K2-Thinking",
     name: "Kimi-K2-Thinking",
     description: "耐心等待，逐过程渲染，适合复杂图表生成",
