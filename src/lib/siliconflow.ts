@@ -222,6 +222,11 @@ export const RECOMMENDED_MODELS = [
     description: "耐心等待，逐过程渲染，适合复杂图表生成",
   },
   {
+    id: "Pro/MiniMaxAI/MiniMax-M2.1",
+    name: "MiniMax-M2.1",
+    description: "推理能力强，逐过程输出绘制，适合复杂图表生成",
+  },
+  {
     id: "Pro/deepseek-ai/DeepSeek-V3",
     name: "DeepSeek V3",
     description: "推理能力强，逐过程输出绘制，适合复杂图表生成",
@@ -236,6 +241,7 @@ export const RECOMMENDED_MODELS = [
     name: "Kimi-K2-Thinking",
     description: "耐心等待，逐过程渲染，适合复杂图表生成",
   }
+
 ] as const;
 
 export type ModelId = (typeof RECOMMENDED_MODELS)[number]["id"];
@@ -243,4 +249,4 @@ export type ModelId = (typeof RECOMMENDED_MODELS)[number]["id"];
 /**
  * 默认模型
  */
-export const DEFAULT_MODEL: ModelId = "Pro/zai-org/GLM-4.7";
+export const DEFAULT_MODEL: ModelId = "Pro/MiniMaxAI/MiniMax-M2.1";
