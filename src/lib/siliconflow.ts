@@ -240,6 +240,11 @@ export const RECOMMENDED_MODELS = [
     id: "Pro/moonshotai/Kimi-K2-Thinking",
     name: "Kimi-K2-Thinking",
     description: "耐心等待，逐过程渲染，适合复杂图表生成",
+  },
+  {
+    id: "Pro/moonshotai/Kimi-K2.5",
+    name: "Kimi-K2.5",
+    description: "2026-01-30 17:05:17",
   }
 
 ] as const;
