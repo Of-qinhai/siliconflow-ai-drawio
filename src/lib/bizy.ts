@@ -192,7 +192,7 @@ export function getBizyConfig(): BizyConfig {
     return {
       serviceType: 'custom-api',
       customApi: {
-        endpoint: customEndpoint,
+        endpoint: customEndpoint, //https://api.bizyair.cn/w/v1/webapp/task/openapi/create
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
